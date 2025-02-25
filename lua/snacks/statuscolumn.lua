@@ -181,21 +181,18 @@ function M._get()
   local nu = vim.wo[win].number
   local rnu = vim.wo[win].relativenumber
   local show_signs = vim.v.virtnum == 0 and vim.wo[win].signcolumn ~= "no"
-  local components = { "", "", "" } -- left, middle, right
+  local components = { "", "", "", "" } -- left, middle left, middle right, right
   if not (show_signs or nu or rnu) then
     return ""
   end
 
-  if (nu or rnu) and vim.v.virtnum == 0 then
-    local num ---@type number
-    if rnu and nu and vim.v.relnum == 0 then
-      num = vim.v.lnum
-    elseif rnu then
-      num = vim.v.relnum
-    else
-      num = vim.v.lnum
+  if vim.v.virtnum == 0 then
+    if rnu then
+      components[2] = "%=" .. vim.v.relnum .. " "
     end
-    components[2] = "%=" .. num .. " "
+    if nu then
+      components[3] = "%=" .. vim.v.lnum .. " "
+    end
   end
 
   if show_signs then
@@ -232,10 +229,10 @@ function M._get()
         end
       end
       components[1] = left and M.icon(left) or "  " -- left
-      components[3] = is_file and (right and M.icon(right) or "  ") or "" -- right
+      components[4] = is_file and (right and M.icon(right) or "  ") or "" -- right
     else
       components[1] = "  "
-      components[3] = is_file and "  " or ""
+      components[4] = is_file and "  " or ""
     end
   end
 

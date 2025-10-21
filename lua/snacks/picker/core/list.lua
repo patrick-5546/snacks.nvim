@@ -119,11 +119,16 @@ function M.new(picker)
   end)
 
   self.win:on("WinResized", function()
-    if vim.tbl_contains(vim.v.event.windows, self.win.win) then
-      self.state.height = vim.api.nvim_win_get_height(self.win.win)
-      self.dirty = true
-      self:update()
+    if not self.win:win_valid() then
+      return
     end
+    local height = vim.api.nvim_win_get_height(self.win.win)
+    if height == self.state.height then
+      return
+    end
+    self.state.height = height
+    self.dirty = true
+    self:update()
   end)
 
   -- reset topline. Only needed for Neovim < 0.11,

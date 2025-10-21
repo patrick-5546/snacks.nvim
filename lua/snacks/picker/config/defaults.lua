@@ -296,6 +296,7 @@ local defaults = {
         ["<c-n>"] = "list_down",
         ["<c-p>"] = "list_up",
         ["<c-q>"] = "qflist",
+        ["<c-g>"] = "print_cwd",
         ["<c-s>"] = "edit_split",
         ["<c-t>"] = "tab",
         ["<c-u>"] = "list_scroll_up",

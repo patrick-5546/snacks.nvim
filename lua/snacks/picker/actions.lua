@@ -153,6 +153,10 @@ function M.close(picker)
   end)
 end
 
+function M.print_cwd(picker)
+  print(picker:cwd())
+end
+
 function M.cancel(picker)
   picker:norm(function()
     local main = require("snacks.picker.core.main").new({ float = false, file = false })

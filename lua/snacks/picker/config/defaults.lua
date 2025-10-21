@@ -116,7 +116,7 @@ local defaults = {
   prompt = " ",
   sources = {},
   focus = "input",
-  show_delay = 100,
+  show_delay = 1000,
   layout = {
     cycle = true,
     --- Use the default layout or vertical if the window is too narrow

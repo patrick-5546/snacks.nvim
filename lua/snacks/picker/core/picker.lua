@@ -779,8 +779,8 @@ function M:update(opts)
         self.list:unpause()
         self:show()
       end
-    elseif vim.uv.hrtime() - self.start_time > self.opts.show_delay and list_count == 0 then
-      -- show the picker after 100ms if there are no results yet
+    elseif vim.uv.hrtime() - self.start_time > (self.opts.show_delay * 1e6) then
+      -- show the picker after show_delay ms if there are no results yet
       self:show()
     elseif list_count > 1 or (list_count == 1 and not self.opts.auto_confirm) then -- show the picker if we have results
       self:show()

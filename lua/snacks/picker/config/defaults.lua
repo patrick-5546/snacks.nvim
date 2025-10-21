@@ -90,6 +90,7 @@ local M = {}
 ---@field title? string defaults to a capitalized source name
 ---@field auto_close? boolean automatically close the picker when focusing another window (defaults to true)
 ---@field show_empty? boolean show the picker even when there are no items
+---@field show_delay? number delay (in ms) to wait before showing the picker while no results yet
 ---@field focus? "input"|"list" where to focus when the picker is opened (defaults to "input")
 ---@field enter? boolean enter the picker when opening it
 ---@field toggles? table<string, string|false|snacks.picker.toggle>
@@ -115,6 +116,7 @@ local defaults = {
   prompt = " ",
   sources = {},
   focus = "input",
+  show_delay = 100,
   layout = {
     cycle = true,
     --- Use the default layout or vertical if the window is too narrow

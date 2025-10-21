@@ -217,7 +217,7 @@ function M.input(opts, on_confirm)
   })
 
   local parent_zindex = vim.api.nvim_win_get_config(parent_win).zindex
-  opts.win.zindex = math.max(parent_zindex + 1, opts.win.zindex or 50)
+  opts.win.zindex = math.max((parent_zindex or 50) + 1, opts.win.zindex or 50)
 
   local min_width = opts.win.width or 60
   if opts.expand then

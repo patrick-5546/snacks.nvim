@@ -208,8 +208,12 @@ M.files = {
   supports_live = true,
 }
 
----@class snacks.picker.git.Config: snacks.picker.Config
----@field args? string[] additional arguments to pass to `git ls-files`
+--- Git arguments are use like this:
+---  * git [<cmd_args>] <cmd> [<args>]
+---  * cmd may be `status`, `log`, `diff`, etc.
+---@class snacks.picker.git.Config: snacks.picker.Config,snacks.picker.git.Args
+---@field args? string[] additional arguments to pass to `git`
+---@field cmd_args? string[] additional arguments to pass to the `git <cmd>``
 
 ---@class snacks.picker.git.branches.Config: snacks.picker.git.Config
 ---@field all? boolean show all branches, including remote

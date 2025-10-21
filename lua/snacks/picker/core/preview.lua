@@ -90,6 +90,7 @@ function M.new(picker)
     main = {
       relative = "win",
       backdrop = false,
+      zindex = 40, -- Lower than default (50) so input/help windows stay on top
     },
     layout = {
       backdrop = win_opts.backdrop == true,

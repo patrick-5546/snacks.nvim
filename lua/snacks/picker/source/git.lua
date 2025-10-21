@@ -139,6 +139,10 @@ function M.log(opts, ctx)
     args[#args + 1] = file
   end
 
+  if ctx.filter.search ~= "" then
+    vim.list_extend(args, { "-S", ctx.filter.search })
+  end
+
   local Proc = require("snacks.picker.source.proc")
   file = file and svim.fs.normalize(file) or nil
 

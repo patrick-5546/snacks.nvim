@@ -283,6 +283,7 @@ M.git_log = {
   format = "git_log",
   preview = "git_show",
   confirm = "git_checkout",
+  supports_live = true,
   sort = { fields = { "score:desc", "idx" } },
 }
 

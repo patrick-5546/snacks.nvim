@@ -39,22 +39,7 @@ function M.severity(item, picker)
   return ret
 end
 
----@param item snacks.picker.Item
 function M.filename(item, picker)
-  ---@type snacks.picker.Text[]
-  return {
-    {
-      "",
-      resolve = function(ctx)
-        return M._filename(ctx)
-      end,
-    },
-  }
-end
-
----@type snacks.picker.format.resolve
-function M._filename(ctx)
-  local picker, item = ctx.picker, ctx.item
   ---@type snacks.picker.Highlight[]
   local ret = {}
   if not item.file then
@@ -80,13 +65,6 @@ function M._filename(ctx)
     ret[#ret + 1] = { icon, hl, virtual = true }
   end
 
-  local truncate = picker.opts.formatters.file.truncate
-  path = Snacks.picker.util.truncpath(
-    path,
-    ctx.max_width - Snacks.picker.highlight.offset(ret),
-    { cwd = picker:cwd(), kind = truncate }
-  )
-
   local base_hl = item.dir and "SnacksPickerDirectory" or "SnacksPickerFile"
   local function is(prop)
     local it = item
@@ -111,19 +89,31 @@ function M._filename(ctx)
     path = vim.fn.fnamemodify(item.file, ":t")
     ret[#ret + 1] = { path, base_hl, field = "file" }
   else
-    local dir, base = path:match("^(.*)/(.+)$")
-    if base and dir then
-      if picker.opts.formatters.file.filename_first then
-        ret[#ret + 1] = { base, base_hl, field = "file" }
-        ret[#ret + 1] = { " " }
-        ret[#ret + 1] = { dir, dir_hl, field = "file" }
-      else
-        ret[#ret + 1] = { dir .. "/", dir_hl, field = "file" }
-        ret[#ret + 1] = { base, base_hl, field = "file" }
-      end
-    else
-      ret[#ret + 1] = { path, base_hl, field = "file" }
-    end
+    ret[#ret + 1] = {
+      "",
+      resolve = function(max_width)
+        local truncpath = Snacks.picker.util.truncpath(
+          path,
+          max_width,
+          { cwd = picker:cwd(), kind = picker.opts.formatters.file.truncate }
+        )
+        local dir, base = truncpath:match("^(.*)/(.+)$")
+        local resolved = {} ---@type snacks.picker.Highlight[]
+        if base and dir then
+          if picker.opts.formatters.file.filename_first then
+            resolved[#resolved + 1] = { base, base_hl, field = "file" }
+            resolved[#resolved + 1] = { " " }
+            resolved[#resolved + 1] = { dir, dir_hl, field = "file" }
+          else
+            resolved[#resolved + 1] = { dir .. "/", dir_hl, field = "file" }
+            resolved[#resolved + 1] = { base, base_hl, field = "file" }
+          end
+        else
+          resolved[#resolved + 1] = { truncpath, base_hl, field = "file" }
+        end
+        return resolved
+      end,
+    }
   end
   if item.pos and item.pos[1] > 0 then
     ret[#ret + 1] = { ":", "SnacksPickerDelim" }

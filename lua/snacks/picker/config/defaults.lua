@@ -1,12 +1,6 @@
 local M = {}
 
----@class snacks.picker.format.ctx
----@field picker snacks.Picker
----@field item snacks.picker.Item
----@field offset number
----@field max_width number
-
----@alias snacks.picker.format.resolve fun(ctx:snacks.picker.format.ctx):snacks.picker.Highlight[]
+---@alias snacks.picker.format.resolve fun(max_width:number):snacks.picker.Highlight[]
 ---@alias snacks.picker.Extmark vim.api.keyset.set_extmark|{col:number, row?:number, field?:string}
 ---@alias snacks.picker.Text {[1]:string, [2]:string?, virtual?:boolean, field?:string, resolve?:snacks.picker.format.resolve}
 ---@alias snacks.picker.Highlight snacks.picker.Text|snacks.picker.Extmark

@@ -293,7 +293,7 @@ Snacks.picker.pick({source = "files", ...})
         ["<c-n>"] = "list_down",
         ["<c-p>"] = "list_up",
         ["<c-q>"] = "qflist",
-        ["<c-g>"] = "print_cwd",
+        ["<c-g>"] = "print_path",
         ["<c-s>"] = "edit_split",
         ["<c-t>"] = "tab",
         ["<c-u>"] = "list_scroll_up",
@@ -627,23 +627,6 @@ Snacks.picker.pick({source = "files", ...})
 ```
 
 ```lua
----@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
-```
-
-```lua
----@class snacks.picker.Last
----@field cursor number
----@field topline number
----@field opts? snacks.picker.Config
----@field selected snacks.picker.Item[]
----@field filter snacks.picker.Filter
-```
-
-```lua
----@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
-```
-
-```lua
 ---@alias snacks.picker.format.resolve fun(max_width:number):snacks.picker.Highlight[]
 ---@alias snacks.picker.Extmark vim.api.keyset.set_extmark|{col:number, row?:number, field?:string}
 ---@alias snacks.picker.Text {[1]:string, [2]:string?, virtual?:boolean, field?:string, resolve?:snacks.picker.format.resolve}
@@ -721,6 +704,23 @@ It's a previewer that shows a preview based on the item data.
 ---@field input? snacks.win.Config|{} input window config
 ---@field list? snacks.win.Config|{} result list window config
 ---@field preview? snacks.win.Config|{} preview window config
+```
+
+```lua
+---@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
+```
+
+```lua
+---@class snacks.picker.Last
+---@field cursor number
+---@field topline number
+---@field opts? snacks.picker.Config
+---@field selected snacks.picker.Item[]
+---@field filter snacks.picker.Filter
+```
+
+```lua
+---@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
 ```
 
 ## 📦 Module
@@ -2652,6 +2652,18 @@ Snacks.picker.actions.preview_scroll_up(picker)
 Snacks.picker.actions.print_cwd(picker)
 ```
 
+### `Snacks.picker.actions.print_dir()`
+
+```lua
+Snacks.picker.actions.print_dir(picker)
+```
+
+### `Snacks.picker.actions.print_path()`
+
+```lua
+Snacks.picker.actions.print_path(picker, item)
+```
+
 ### `Snacks.picker.actions.qflist()`
 
 Send selected or all items to the quickfix list.
@@ -2760,6 +2772,8 @@ Snacks.picker.actions.toggle_preview(picker)
 ```lua
 Snacks.picker.actions.yank(picker, item, action)
 ```
+
+
 
 ## 📦 `snacks.picker.core.picker`
 
@@ -3015,5 +3029,3 @@ Get the word under the cursor or the current visual selection
 ```lua
 picker:word()
 ```
-
-

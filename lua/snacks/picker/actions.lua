@@ -154,7 +154,16 @@ function M.close(picker)
 end
 
 function M.print_cwd(picker)
-  print(picker:cwd())
+  print(vim.fn.fnamemodify(picker:cwd(), ":p:~"))
+end
+
+function M.print_dir(picker)
+  print(vim.fn.fnamemodify(picker:dir(), ":p:~"))
+end
+
+function M.print_path(picker, item)
+  local path = item and Snacks.picker.util.path(item) or picker:dir()
+  print(vim.fn.fnamemodify(path, ":p:~"))
 end
 
 function M.cancel(picker)

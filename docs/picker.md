@@ -292,6 +292,7 @@ Snacks.picker.pick({source = "files", ...})
         ["<c-n>"] = "list_down",
         ["<c-p>"] = "list_up",
         ["<c-q>"] = "qflist",
+        ["<c-g>"] = "print_cwd",
         ["<c-s>"] = "edit_split",
         ["<c-t>"] = "tab",
         ["<c-u>"] = "list_scroll_up",
@@ -2650,6 +2651,12 @@ Snacks.picker.actions.preview_scroll_right(picker)
 
 ```lua
 Snacks.picker.actions.preview_scroll_up(picker)
+```
+
+### `Snacks.picker.actions.print_cwd()`
+
+```lua
+Snacks.picker.actions.print_cwd(picker)
 ```
 
 ### `Snacks.picker.actions.qflist()`

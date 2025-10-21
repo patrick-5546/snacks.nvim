@@ -117,7 +117,7 @@ Snacks.picker.pick({source = "files", ...})
   prompt = " ",
   sources = {},
   focus = "input",
-  show_delay = 100,
+  show_delay = 1000,
   layout = {
     cycle = true,
     --- Use the default layout or vertical if the window is too narrow
@@ -1189,6 +1189,7 @@ Git log
   format = "git_log",
   preview = "git_show",
   confirm = "git_checkout",
+  supports_live = true,
   sort = { fields = { "score:desc", "idx" } },
 }
 ```

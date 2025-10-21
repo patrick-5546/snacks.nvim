@@ -51,6 +51,21 @@ M.transforms = {
       content = img.content,
     }, { indent = true, prefix = "$" })
   end,
+  data_img = function(img, ctx)
+    if not vim.base64 then
+      return
+    end
+    if not img.src then
+      return
+    end
+    local ft, data = img.src:match("^data:(.-);base64,(.+)$")
+    if not (ft and data) then
+      return
+    end
+    img.content = vim.base64.decode(data)
+    img.src = nil
+    img.ext = ft:match("^image/(%w+)$") or "png"
+  end,
   latex = function(img, ctx)
     if not (img.content and img.ext == "math.tex") then
       return
@@ -292,6 +307,9 @@ function M._img(ctx)
   assert(img.src or img.content, "no image src or content")
 
   local transform = M.transforms[ctx.lang]
+  if img.src and img.src:find("^data:%w+/%w+;base64,") then
+    transform = M.transforms["data_img"]
+  end
   if transform then
     transform(img, ctx)
   end

@@ -94,7 +94,7 @@ function M.filename(item, picker)
       resolve = function(max_width)
         local truncpath = Snacks.picker.util.truncpath(
           path,
-          max_width,
+          math.max(max_width, picker.opts.formatters.file.min_width or 20),
           { cwd = picker:cwd(), kind = picker.opts.formatters.file.truncate }
         )
         local dir, base = truncpath:match("^(.*)/(.+)$")

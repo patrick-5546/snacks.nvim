@@ -2,7 +2,7 @@ local M = {}
 
 local uv = vim.uv or vim.loop
 
-local MATCH_SEP = "__snacks__"
+local MATCH_SEP = "󰄊󱥳󱥰"
 
 ---@param opts snacks.picker.grep.Config
 ---@param filter snacks.picker.Filter
@@ -131,7 +131,6 @@ function M.grep(opts, ctx)
         end
         local file = item.text:sub(1, file_sep - 1)
         local rest = item.text:sub(file_sep + 1)
-        item.text = file .. ":" .. rest
         ---@type string?, string?, string?
         local line, col, text = rest:match("^(%d+):(%d+):(.*)$")
         if not (line and col and text) then
@@ -140,38 +139,36 @@ function M.grep(opts, ctx)
           end
           return false
         end
+        item.text = file .. ":" .. rest:gsub(MATCH_SEP, "")
 
         -- indices of matches
-        local positions = {} ---@type number[]
         local from = tonumber(col)
         item.pos = { tonumber(line), from - 1 }
 
-        local offset = 0
-        local in_match = false
-        while from < #text do
-          local idx = text:find(MATCH_SEP, from, true)
-          if not idx then
-            break
-          end
-
-          if in_match then
-            for i = from, idx - 1 do
-              positions[#positions + 1] = i - offset
+        item.resolve = function()
+          local positions = {} ---@type number[]
+          local offset = 0
+          local in_match = false
+          while from < #text do
+            local idx = text:find(MATCH_SEP, from, true)
+            if not idx then
+              break
             end
-            item.end_pos = item.end_pos or { item.pos[1], idx - offset - 1 }
+            if in_match then
+              for i = from, idx - 1 do
+                positions[#positions + 1] = i - offset
+              end
+              item.end_pos = item.end_pos or { item.pos[1], idx - offset - 1 }
+            end
+            in_match = not in_match
+            offset = offset + #MATCH_SEP
+            from = idx + #MATCH_SEP
           end
-          in_match = not in_match
-
-          offset = offset + #MATCH_SEP
-          from = idx + #MATCH_SEP
+          item.positions = #positions > 0 and positions or nil
+          item.line = text:gsub(MATCH_SEP, "")
         end
 
         item.file = file
-        if #positions > 0 then
-          text = text:gsub(MATCH_SEP, "")
-          item.positions = positions
-        end
-        item.line = text
       end,
     },
   }, ctx)

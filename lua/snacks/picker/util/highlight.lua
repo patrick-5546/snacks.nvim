@@ -112,6 +112,21 @@ function M.offset(line, opts)
 end
 
 ---@param line snacks.picker.Highlight[]
+---@param positions number[]
+---@param offset? number
+function M.matches(line, positions, offset)
+  offset = offset or 0
+  for _, pos in ipairs(positions) do
+    table.insert(line, {
+      col = pos - 1 + offset,
+      end_col = pos + offset,
+      hl_group = "SnacksPickerMatch",
+    })
+  end
+  return line
+end
+
+---@param line snacks.picker.Highlight[]
 ---@param item snacks.picker.Item
 ---@param text string
 ---@param opts? {hl_group?:string, lang?:string}

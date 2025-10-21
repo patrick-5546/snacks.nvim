@@ -43,6 +43,7 @@ local M = {}
 ---@field highlights? snacks.picker.Highlight[][]
 ---@field preview? snacks.picker.Item.preview
 ---@field resolve? fun(item:snacks.picker.Item)
+---@field positions? number[] indices of matched characters in `text`
 
 ---@class snacks.picker.finder.Item: snacks.picker.Item
 ---@field idx? number

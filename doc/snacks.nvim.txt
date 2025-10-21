@@ -215,6 +215,7 @@ Default Options ~
           "mkv",
           "webm",
           "pdf",
+          "icns",
         },
       },
     }

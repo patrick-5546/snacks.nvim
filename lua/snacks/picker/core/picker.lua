@@ -291,6 +291,9 @@ function M:attach()
   -- close if we enter a window that is not part of the picker
   local preview = false
   self.layout.root:on("WinEnter", function()
+    if vim.v.vim_did_enter == 0 then
+      return
+    end
     if self.closed or Snacks.util.is_float() then
       return
     end

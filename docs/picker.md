@@ -1261,6 +1261,7 @@ Git log
     input = {
       keys = {
         ["<Tab>"] = { "git_stage", mode = { "n", "i" } },
+        ["<c-r>"] = { "git_restore", mode = { "n", "i" } },
       },
     },
   },
@@ -2462,6 +2463,12 @@ Snacks.picker.actions.git_branch_del(picker, item)
 
 ```lua
 Snacks.picker.actions.git_checkout(picker, item)
+```
+
+### `Snacks.picker.actions.git_restore()`
+
+```lua
+Snacks.picker.actions.git_restore(picker)
 ```
 
 ### `Snacks.picker.actions.git_stage()`

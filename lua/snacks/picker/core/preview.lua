@@ -353,9 +353,9 @@ function M:loc()
     end
   elseif self.item.search then
     vim.api.nvim_win_call(self.win.win, function()
-      vim.cmd("keepjumps norm! gg")
-      if pcall(vim.cmd, self.item.search) then
-        vim.cmd("norm! zz")
+      if pcall(vim.cmd, ":0;" .. self.item.search) then
+        vim.fn.histdel("search", -1) -- remove from search history
+        vim.cmd("norm! zzze")
         self:wo({ cursorline = true })
       end
     end)

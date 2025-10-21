@@ -182,7 +182,9 @@ function M.input(opts, on_confirm)
         self:close()
       end,
       stopinsert = function()
-        vim.cmd("stopinsert")
+        vim.schedule(function()
+          vim.cmd("stopinsert")
+        end)
       end,
       confirm = function(self)
         confirm(self:text())

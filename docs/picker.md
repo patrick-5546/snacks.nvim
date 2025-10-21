@@ -678,6 +678,7 @@ It's a previewer that shows a preview based on the item data.
 ---@field highlights? snacks.picker.Highlight[][]
 ---@field preview? snacks.picker.Item.preview
 ---@field resolve? fun(item:snacks.picker.Item)
+---@field positions? number[] indices of matched characters in `text`
 ```
 
 ```lua

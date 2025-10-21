@@ -78,10 +78,10 @@ function M.filename(item, picker)
 
   if is("ignored") then
     base_hl = "SnacksPickerPathIgnored"
-  elseif is("hidden") then
-    base_hl = "SnacksPickerPathHidden"
   elseif item.filename_hl then
     base_hl = item.filename_hl
+  elseif is("hidden") then
+    base_hl = "SnacksPickerPathHidden"
   end
   local dir_hl = "SnacksPickerDir"
 

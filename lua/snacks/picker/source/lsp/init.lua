@@ -315,7 +315,7 @@ function M.results_to_items(client, results, opts)
     result.children = nil
   end
 
-  local root = { text = "" } ---@type snacks.picker.finder.Item
+  local root = { text = "", root = true } ---@type snacks.picker.finder.Item
   ---@type snacks.picker.finder.Item
   for _, result in ipairs(results) do
     add(result, root)
@@ -330,6 +330,10 @@ end
 ---@param opts snacks.picker.lsp.symbols.Config
 ---@type snacks.picker.finder
 function M.symbols(opts, ctx)
+  if opts.keep_parents then
+    ctx.picker.matcher.opts.keep_parents = true
+    ctx.picker.matcher.opts.sort = false
+  end
   local buf = ctx.filter.current_buf
   -- For unloaded buffers, load the buffer and
   -- refresh the picker on every LspAttach event

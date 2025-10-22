@@ -558,6 +558,8 @@ Snacks.picker.pick({source = "files", ...})
     { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
     { "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
     { "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto T[y]pe Definition" },
+    { "gai", function() Snacks.picker.lsp_incoming_calls() end, desc = "C[a]lls Incoming" },
+    { "gao", function() Snacks.picker.lsp_outgoing_calls() end, desc = "C[a]lls Outgoing" },
     { "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
     { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
   },
@@ -628,23 +630,6 @@ Snacks.picker.pick({source = "files", ...})
 ```lua
 ---@class snacks.picker.insert.Action: snacks.picker.Action
 ---@field expr string
-```
-
-```lua
----@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
-```
-
-```lua
----@class snacks.picker.Last
----@field cursor number
----@field topline number
----@field opts? snacks.picker.Config
----@field selected snacks.picker.Item[]
----@field filter snacks.picker.Filter
-```
-
-```lua
----@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
 ```
 
 ```lua
@@ -726,6 +711,23 @@ It's a previewer that shows a preview based on the item data.
 ---@field input? snacks.win.Config|{} input window config
 ---@field list? snacks.win.Config|{} result list window config
 ---@field preview? snacks.win.Config|{} preview window config
+```
+
+```lua
+---@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
+```
+
+```lua
+---@class snacks.picker.Last
+---@field cursor number
+---@field topline number
+---@field opts? snacks.picker.Config
+---@field selected snacks.picker.Item[]
+---@field filter snacks.picker.Filter
+```
+
+```lua
+---@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
 ```
 
 ## 📦 Module
@@ -1601,6 +1603,46 @@ LSP implementations
   finder = "lsp_implementations",
   format = "file",
   include_current = false,
+  auto_confirm = true,
+  jump = { tagstack = true, reuse_win = true },
+}
+```
+
+### `lsp_incoming_calls`
+
+```vim
+:lua Snacks.picker.lsp_incoming_calls(opts?)
+```
+
+LSP incoming calls
+
+```lua
+---@type snacks.picker.lsp.Config
+{
+  finder = "lsp_incoming_calls",
+  format = "lsp_symbol",
+  include_current = false,
+  workspace = true, -- this ensures the file is included in the formatter
+  auto_confirm = true,
+  jump = { tagstack = true, reuse_win = true },
+}
+```
+
+### `lsp_outgoing_calls`
+
+```vim
+:lua Snacks.picker.lsp_outgoing_calls(opts?)
+```
+
+LSP outgoing calls
+
+```lua
+---@type snacks.picker.lsp.Config
+{
+  finder = "lsp_outgoing_calls",
+  format = "lsp_symbol",
+  include_current = false,
+  workspace = true, -- this ensures the file is included in the formatter
   auto_confirm = true,
   jump = { tagstack = true, reuse_win = true },
 }
@@ -2788,6 +2830,8 @@ Snacks.picker.actions.toggle_preview(picker)
 Snacks.picker.actions.yank(picker, item, action)
 ```
 
+
+
 ## 📦 `snacks.picker.core.picker`
 
 ```lua
@@ -3042,5 +3086,3 @@ Get the word under the cursor or the current visual selection
 ```lua
 picker:word()
 ```
-
-

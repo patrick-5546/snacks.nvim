@@ -111,7 +111,7 @@ function M:run(picker)
   local yield ---@type fun()
   local ctx = self:ctx(picker)
   local finder = self._find(picker.opts, ctx, self:deprecated(picker))
-  local limit = picker.opts.limit or math.huge
+  local limit = (picker.opts.live and picker.opts.limit_live or picker.opts.limit) or math.huge
 
   ---@param item snacks.picker.finder.Item
   local function add(item)

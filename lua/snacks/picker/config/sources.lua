@@ -550,6 +550,28 @@ M.lsp_implementations = {
   jump = { tagstack = true, reuse_win = true },
 }
 
+-- LSP incoming calls
+---@type snacks.picker.lsp.Config
+M.lsp_incoming_calls = {
+  finder = "lsp_incoming_calls",
+  format = "lsp_symbol",
+  include_current = false,
+  workspace = true, -- this ensures the file is included in the formatter
+  auto_confirm = true,
+  jump = { tagstack = true, reuse_win = true },
+}
+
+-- LSP outgoing calls
+---@type snacks.picker.lsp.Config
+M.lsp_outgoing_calls = {
+  finder = "lsp_outgoing_calls",
+  format = "lsp_symbol",
+  include_current = false,
+  workspace = true, -- this ensures the file is included in the formatter
+  auto_confirm = true,
+  jump = { tagstack = true, reuse_win = true },
+}
+
 -- LSP references
 ---@class snacks.picker.lsp.references.Config: snacks.picker.lsp.Config
 ---@field include_declaration? boolean default true

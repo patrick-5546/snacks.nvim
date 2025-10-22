@@ -65,7 +65,7 @@ M.meta = {
 ---@field row? number|fun(self:snacks.win):number Row of the window. Use <1 for relative row. (default: center)
 ---@field minimal? boolean Disable a bunch of options to make the window minimal (default: true)
 ---@field position? "float"|"bottom"|"top"|"left"|"right"|"current"
----@field border? "none"|"top"|"right"|"bottom"|"left"|"hpad"|"vpad"|"rounded"|"single"|"double"|"solid"|"shadow"|string[]|false
+---@field border? "none"|"top"|"right"|"bottom"|"left"|"hpad"|"vpad"|"rounded"|"single"|"double"|"solid"|"shadow"|"bold"|string[]|false|true
 ---@field buf? number If set, use this buffer instead of creating a new one
 ---@field file? string If set, use this file instead of creating a new buffer
 ---@field enter? boolean Enter the window after opening (default: false)
@@ -1100,7 +1100,9 @@ function M:win_opts()
     opts[k] = self.opts[k]
   end
 
-  opts.border = opts.border and (borders[opts.border] or opts.border) or "none"
+  local border = self:border()
+
+  opts.border = border and (borders[border] or border) or "none"
 
   if opts.relative == "cursor" then
     self.opts.row = self.opts.row or 0
@@ -1115,7 +1117,7 @@ function M:win_opts()
     opts.footer, opts.footer_pos = nil, nil
   end
 
-  if self:has_border() then
+  if border then
     opts.title_pos = opts.title and (opts.title_pos or "center") or nil
     opts.footer_pos = opts.footer and (opts.footer_pos or "center") or nil
   else
@@ -1139,7 +1141,27 @@ function M:size()
 end
 
 function M:has_border()
-  return self.opts.border and self.opts.border ~= "" and self.opts.border ~= "none"
+  return self:border() ~= nil
+end
+
+function M.is_border(border)
+  return border and border ~= "" and border ~= "none"
+end
+
+function M:border()
+  if not M.is_border(self.opts.border) then
+    return
+  end
+
+  if self.opts.border == true then
+    local border ---@type string|string[]|nil
+    pcall(function()
+      border = vim.o.winborder
+      border = border:find(",") and vim.split(border, ",") or border
+    end)
+    return M.is_border(border) and border or "rounded"
+  end
+  return self.opts.border
 end
 
 --- Calculate the size of the border
@@ -1148,7 +1170,7 @@ function M:border_size()
   -- chars building up the border in a clockwise fashion
   -- starting with the top-left corner.
   -- { "╔", "═" ,"╗", "║", "╝", "═", "╚", "║" }
-  local border = self:has_border() and self.opts.border or { "" }
+  local border = self:border() or { "" }
   border = type(border) == "string" and borders[border] or border
   border = type(border) == "string" and { "x" } or border
   assert(type(border) == "table", "Invalid border type")

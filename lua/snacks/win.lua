@@ -54,6 +54,7 @@ M.meta = {
 ---@class snacks.win.Config: vim.api.keyset.win_config
 ---@field style? string merges with config from `Snacks.config.styles[style]`
 ---@field show? boolean Show the window immediately (default: true)
+---@field footer_keys? boolean Show keys footer (default: false)
 ---@field height? number|fun(self:snacks.win):number Height of the window. Use <1 for relative height. 0 means full height. (default: 0.9)
 ---@field width? number|fun(self:snacks.win):number Width of the window. Use <1 for relative width. 0 means full width. (default: 0.9)
 ---@field min_height? number Minimum height of the window
@@ -91,12 +92,15 @@ local defaults = {
   position = "float",
   minimal = true,
   wo = {
-    winhighlight = "Normal:SnacksNormal,NormalNC:SnacksNormalNC,WinBar:SnacksWinBar,WinBarNC:SnacksWinBarNC",
+    winhighlight = "Normal:SnacksNormal,NormalNC:SnacksNormalNC,WinBar:SnacksWinBar,WinBarNC:SnacksWinBarNC,FloatTitle:SnacksTitle,FloatFooter:SnacksFooter",
   },
   bo = {},
+  title_pos = "center",
   keys = {
     q = "close",
   },
+  footer_pos = "center",
+  footer_keys = false,
 }
 
 Snacks.config.style("float", {
@@ -194,8 +198,12 @@ local borders = {
 
 Snacks.util.set_hl({
   Backdrop = { bg = "#000000" },
+  Footer = "FloatFooter",
+  FooterDesc = "DiagnosticInfo",
+  FooterKey = "DiagnosticVirtualTextInfo",
   Normal = "NormalFloat",
   NormalNC = "NormalFloat",
+  Title = "FloatTitle",
   WinBar = "Title",
   WinBarNC = "SnacksWinBar",
   WinKey = "Keyword",
@@ -808,6 +816,20 @@ function M:show()
     self.opts.on_buf(self)
   end
 
+  if self.opts.footer_keys then
+    self.opts.footer = {}
+    table.sort(self.keys, function(a, b)
+      return a[1] < b[1]
+    end)
+    for _, key in ipairs(self.keys) do
+      local keymap = vim.fn.keytrans(Snacks.util.keycode(key[1]))
+      table.insert(self.opts.footer, { " ", "SnacksFooter" })
+      table.insert(self.opts.footer, { " " .. keymap .. " ", "SnacksFooterKey" })
+      table.insert(self.opts.footer, { " " .. (key.desc or keymap) .. " ", "SnacksFooterDesc" })
+    end
+    table.insert(self.opts.footer, { " ", "SnacksFooter" })
+  end
+
   self:open_win()
   self.closed = false
   -- window local variables
@@ -1089,21 +1111,18 @@ function M:win_opts()
   opts.height, opts.width = dim.height, dim.width
   opts.row, opts.col = dim.row, dim.col
 
-  if opts.title_pos and not opts.title then
-    opts.title_pos = nil
-  end
-  if opts.footer_pos and not opts.footer then
-    opts.footer_pos = nil
-  end
-
   if vim.fn.has("nvim-0.10") == 0 then
     opts.footer, opts.footer_pos = nil, nil
   end
 
-  if not self:has_border() then
+  if self:has_border() then
+    opts.title_pos = opts.title and (opts.title_pos or "center") or nil
+    opts.footer_pos = opts.footer and (opts.footer_pos or "center") or nil
+  else
     opts.title, opts.footer = nil, nil
     opts.title_pos, opts.footer_pos = nil, nil
   end
+
   return opts
 end
 

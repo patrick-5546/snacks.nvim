@@ -224,9 +224,8 @@ The other options are used with `:lua Snacks.dashboard()`
   -- position = "right",
   zindex = 20,
   wo = { winhighlight = "NormalFloat:Normal" },
+  footer_keys = true,
   border = "rounded",
-  title_pos = "center",
-  footer_pos = "center",
 }
 ```
 

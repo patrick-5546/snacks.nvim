@@ -1157,6 +1157,7 @@ Grep in git files
 ---@field untracked? boolean search in untracked files
 ---@field submodules? boolean search in submodule files
 ---@field need_search? boolean require a search pattern
+---@field pathspec? string|string[] pathspec pattern(s)
 ---@field ignorecase? boolean ignore case
 {
   finder = "git_grep",

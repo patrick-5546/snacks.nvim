@@ -17,6 +17,7 @@ Table of Contents                       *snacks.nvim-picker-table-of-contents*
   - Snacks.picker()                |snacks.nvim-picker-module-snacks.picker()|
   - Snacks.picker.get()        |snacks.nvim-picker-module-snacks.picker.get()|
   - Snacks.picker.pick()      |snacks.nvim-picker-module-snacks.picker.pick()|
+  - Snacks.picker.resume()  |snacks.nvim-picker-module-snacks.picker.resume()|
   - Snacks.picker.select()  |snacks.nvim-picker-module-snacks.picker.select()|
 8. Sources                                        |snacks.nvim-picker-sources|
   - autocmds                             |snacks.nvim-picker-sources-autocmds|
@@ -807,6 +808,13 @@ TROUBLE                                  *snacks.nvim-picker-examples-trouble*
 6. Types                                            *snacks.nvim-picker-types*
 
 >lua
+    ---@class snacks.picker.resume.Opts
+    ---@field source? string
+    ---@field include? string[]
+    ---@field exclude? string[]
+<
+
+>lua
     ---@class snacks.picker.jump.Action: snacks.picker.Action
     ---@field cmd? snacks.picker.EditCmd
 <
@@ -826,23 +834,6 @@ TROUBLE                                  *snacks.nvim-picker-examples-trouble*
 >lua
     ---@class snacks.picker.insert.Action: snacks.picker.Action
     ---@field expr string
-<
-
->lua
-    ---@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
-<
-
->lua
-    ---@class snacks.picker.Last
-    ---@field cursor number
-    ---@field topline number
-    ---@field opts? snacks.picker.Config
-    ---@field selected snacks.picker.Item[]
-    ---@field filter snacks.picker.Filter
-<
-
->lua
-    ---@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
 <
 
 >lua
@@ -926,6 +917,14 @@ that shows a preview based on the item data.
     ---@field preview? snacks.win.Config|{} preview window config
 <
 
+>lua
+    ---@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
+<
+
+>lua
+    ---@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
+<
+
 
 ==============================================================================
 7. Module                                          *snacks.nvim-picker-module*
@@ -978,6 +977,16 @@ Create a new picker
     ---@param opts? snacks.picker.Config
     ---@overload fun(opts: snacks.picker.Config): snacks.Picker
     Snacks.picker.pick(source, opts)
+<
+
+
+`Snacks.picker.resume()`                              *Snacks.picker.resume()*
+
+>lua
+    ---@param opts? snacks.picker.resume.Opts
+    ---@overload fun(source:string):snacks.Picker?
+    ---@return snacks.Picker?
+    Snacks.picker.resume(opts)
 <
 
 

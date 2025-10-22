@@ -611,6 +611,13 @@ Snacks.picker.pick({source = "files", ...})
 ## 📚 Types
 
 ```lua
+---@class snacks.picker.resume.Opts
+---@field source? string
+---@field include? string[]
+---@field exclude? string[]
+```
+
+```lua
 ---@class snacks.picker.jump.Action: snacks.picker.Action
 ---@field cmd? snacks.picker.EditCmd
 ```
@@ -630,23 +637,6 @@ Snacks.picker.pick({source = "files", ...})
 ```lua
 ---@class snacks.picker.insert.Action: snacks.picker.Action
 ---@field expr string
-```
-
-```lua
----@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
-```
-
-```lua
----@class snacks.picker.Last
----@field cursor number
----@field topline number
----@field opts? snacks.picker.Config
----@field selected snacks.picker.Item[]
----@field filter snacks.picker.Filter
-```
-
-```lua
----@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
 ```
 
 ```lua
@@ -730,6 +720,14 @@ It's a previewer that shows a preview based on the item data.
 ---@field preview? snacks.win.Config|{} preview window config
 ```
 
+```lua
+---@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
+```
+
+```lua
+---@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
+```
+
 ## 📦 Module
 
 ```lua
@@ -778,6 +776,15 @@ Create a new picker
 ---@param opts? snacks.picker.Config
 ---@overload fun(opts: snacks.picker.Config): snacks.Picker
 Snacks.picker.pick(source, opts)
+```
+
+### `Snacks.picker.resume()`
+
+```lua
+---@param opts? snacks.picker.resume.Opts
+---@overload fun(source:string):snacks.Picker?
+---@return snacks.Picker?
+Snacks.picker.resume(opts)
 ```
 
 ### `Snacks.picker.select()`
@@ -2831,6 +2838,8 @@ Snacks.picker.actions.toggle_preview(picker)
 Snacks.picker.actions.yank(picker, item, action)
 ```
 
+
+
 ## 📦 `snacks.picker.core.picker`
 
 ```lua
@@ -3085,5 +3094,3 @@ Get the word under the cursor or the current visual selection
 ```lua
 picker:word()
 ```
-
-

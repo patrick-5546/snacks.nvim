@@ -1680,6 +1680,7 @@ LSP document symbols
 ```lua
 ---@class snacks.picker.lsp.symbols.Config: snacks.picker.Config
 ---@field tree? boolean show symbol tree
+---@field keep_parents? boolean keep parent symbols when filtering
 ---@field filter table<string, string[]|boolean>? symbol kind filter
 ---@field workspace? boolean show workspace symbols
 {

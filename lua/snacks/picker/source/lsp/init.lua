@@ -6,7 +6,6 @@ local Async = require("snacks.picker.util.async")
 local M = {}
 
 ---@alias lsp.Symbol lsp.SymbolInformation|lsp.DocumentSymbol
----@alias lsp.Loc lsp.Location|lsp.LocationLink
 
 ---@class snacks.picker.lsp.Loc: lsp.Location
 ---@field encoding string

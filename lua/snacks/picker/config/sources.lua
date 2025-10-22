@@ -849,6 +849,14 @@ M.spelling = {
   confirm = "item_action",
 }
 
+-- Search tags file
+---@class snacks.picker.tags.Config: snacks.picker.Config
+M.tags = {
+  workspace = true, -- search tags in the workspace
+  finder = "vim_tags",
+  format = "lsp_symbol",
+}
+
 ---@class snacks.picker.treesitter.Config: snacks.picker.Config
 ---@field filter table<string, string[]|boolean>? symbol kind filter
 ---@field tree? boolean show symbol tree

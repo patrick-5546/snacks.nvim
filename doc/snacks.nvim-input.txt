@@ -71,7 +71,7 @@ INPUT                                         *snacks.nvim-input-styles-input*
     {
       backdrop = false,
       position = "float",
-      border = "rounded",
+      border = true,
       title_pos = "center",
       height = 1,
       width = 60,

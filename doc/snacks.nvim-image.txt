@@ -226,7 +226,7 @@ SNACKS_IMAGE                           *snacks.nvim-image-styles-snacks_image*
 >lua
     {
       relative = "cursor",
-      border = "rounded",
+      border = true,
       focusable = false,
       backdrop = false,
       row = 1,

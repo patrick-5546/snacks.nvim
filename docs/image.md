@@ -202,7 +202,7 @@ docs for more information on how to customize these styles
 ```lua
 {
   relative = "cursor",
-  border = "rounded",
+  border = true,
   focusable = false,
   backdrop = false,
   row = 1,

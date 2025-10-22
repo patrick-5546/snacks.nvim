@@ -115,7 +115,7 @@ docs for more information on how to customize these styles
   zindex = 20,
   wo = { winhighlight = "NormalFloat:Normal" },
   footer_keys = true,
-  border = "rounded",
+  border = true,
 }
 ```
 

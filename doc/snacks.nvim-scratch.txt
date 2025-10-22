@@ -135,7 +135,7 @@ SCRATCH                                   *snacks.nvim-scratch-styles-scratch*
       zindex = 20,
       wo = { winhighlight = "NormalFloat:Normal" },
       footer_keys = true,
-      border = "rounded",
+      border = true,
     }
 <
 

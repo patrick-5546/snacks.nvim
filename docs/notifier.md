@@ -164,7 +164,7 @@ docs for more information on how to customize these styles
 
 ```lua
 {
-  border = "rounded",
+  border = true,
   zindex = 100,
   ft = "markdown",
   wo = {
@@ -181,7 +181,7 @@ docs for more information on how to customize these styles
 
 ```lua
 {
-  border = "rounded",
+  border = true,
   zindex = 100,
   width = 0.6,
   height = 0.6,

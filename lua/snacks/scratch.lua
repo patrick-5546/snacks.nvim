@@ -83,7 +83,7 @@ Snacks.config.style("scratch", {
   zindex = 20,
   wo = { winhighlight = "NormalFloat:Normal" },
   footer_keys = true,
-  border = "rounded",
+  border = true,
 })
 
 --- Return a list of scratch buffers sorted by mtime.

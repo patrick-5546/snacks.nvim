@@ -79,7 +79,7 @@ local history_opts = {
 }
 
 Snacks.config.style("notification", {
-  border = "rounded",
+  border = true,
   zindex = 100,
   ft = "markdown",
   wo = {
@@ -92,7 +92,7 @@ Snacks.config.style("notification", {
 })
 
 Snacks.config.style("notification_history", {
-  border = "rounded",
+  border = true,
   zindex = 100,
   width = 0.6,
   height = 0.6,

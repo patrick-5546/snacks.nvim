@@ -169,7 +169,7 @@ M.config = Snacks.config.get("image", defaults)
 
 Snacks.config.style("snacks_image", {
   relative = "cursor",
-  border = "rounded",
+  border = true,
   focusable = false,
   backdrop = false,
   row = 1,

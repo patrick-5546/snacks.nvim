@@ -69,6 +69,9 @@ function M.resume(opts)
   local last = states[1]
 
   if not last then
+    if opts.source then
+      return Snacks.picker.pick(opts.source)
+    end
     Snacks.notify.error("No picker to resume")
     Snacks.picker.pickers()
     return

@@ -77,6 +77,7 @@ Table of Contents                       *snacks.nvim-picker-table-of-contents*
   - select                                 |snacks.nvim-picker-sources-select|
   - smart                                   |snacks.nvim-picker-sources-smart|
   - spelling                             |snacks.nvim-picker-sources-spelling|
+  - tags                                     |snacks.nvim-picker-sources-tags|
   - treesitter                         |snacks.nvim-picker-sources-treesitter|
   - undo                                     |snacks.nvim-picker-sources-undo|
   - zoxide                                 |snacks.nvim-picker-sources-zoxide|
@@ -837,6 +838,14 @@ TROUBLE                                  *snacks.nvim-picker-examples-trouble*
 <
 
 >lua
+    ---@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
+<
+
+>lua
+    ---@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
+<
+
+>lua
     ---@alias snacks.picker.format.resolve fun(max_width:number):snacks.picker.Highlight[]
     ---@alias snacks.picker.Extmark vim.api.keyset.set_extmark|{col:number, row?:number, field?:string}
     ---@alias snacks.picker.Text {[1]:string, [2]:string?, virtual?:boolean, field?:string, resolve?:snacks.picker.format.resolve}
@@ -915,14 +924,6 @@ that shows a preview based on the item data.
     ---@field input? snacks.win.Config|{} input window config
     ---@field list? snacks.win.Config|{} result list window config
     ---@field preview? snacks.win.Config|{} preview window config
-<
-
->lua
-    ---@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
-<
-
->lua
-    ---@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
 <
 
 
@@ -2373,6 +2374,24 @@ SPELLING                                 *snacks.nvim-picker-sources-spelling*
       main = { current = true },
       layout = { preset = "vscode" },
       confirm = "item_action",
+    }
+<
+
+
+TAGS                                         *snacks.nvim-picker-sources-tags*
+
+>vim
+    :lua Snacks.picker.tags(opts?)
+<
+
+Search tags file
+
+>lua
+    ---@class snacks.picker.tags.Config: snacks.picker.Config
+    {
+      workspace = true, -- search tags in the workspace
+      finder = "vim_tags",
+      format = "lsp_symbol",
     }
 <
 

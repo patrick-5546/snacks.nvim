@@ -640,6 +640,14 @@ Snacks.picker.pick({source = "files", ...})
 ```
 
 ```lua
+---@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
+```
+
+```lua
+---@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
+```
+
+```lua
 ---@alias snacks.picker.format.resolve fun(max_width:number):snacks.picker.Highlight[]
 ---@alias snacks.picker.Extmark vim.api.keyset.set_extmark|{col:number, row?:number, field?:string}
 ---@alias snacks.picker.Text {[1]:string, [2]:string?, virtual?:boolean, field?:string, resolve?:snacks.picker.format.resolve}
@@ -718,14 +726,6 @@ It's a previewer that shows a preview based on the item data.
 ---@field input? snacks.win.Config|{} input window config
 ---@field list? snacks.win.Config|{} result list window config
 ---@field preview? snacks.win.Config|{} preview window config
-```
-
-```lua
----@alias snacks.Picker.ref (fun():snacks.Picker?)|{value?: snacks.Picker}
-```
-
-```lua
----@alias snacks.picker.history.Record {pattern: string, search: string, live?: boolean}
 ```
 
 ## 📦 Module
@@ -2094,6 +2094,8 @@ Config used by `vim.ui.select`.
 Not meant to be used directly.
 
 ```lua
+---@class snacks.picker.select.Config: snacks.picker.Config
+---@field kinds? table<string, snacks.picker.Config|{}> custom snacks picker configs for specific `vim.ui.select` kinds
 {
   items = {}, -- these are set dynamically
   main = { current = true },
@@ -2880,8 +2882,6 @@ Snacks.picker.actions.toggle_preview(picker)
 Snacks.picker.actions.yank(picker, item, action)
 ```
 
-
-
 ## 📦 `snacks.picker.core.picker`
 
 ```lua
@@ -3136,3 +3136,5 @@ Get the word under the cursor or the current visual selection
 ```lua
 picker:word()
 ```
+
+

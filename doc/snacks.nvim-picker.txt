@@ -73,6 +73,7 @@ Table of Contents                       *snacks.nvim-picker-table-of-contents*
   - recent                                 |snacks.nvim-picker-sources-recent|
   - registers                           |snacks.nvim-picker-sources-registers|
   - resume                                 |snacks.nvim-picker-sources-resume|
+  - scratch                               |snacks.nvim-picker-sources-scratch|
   - search_history                 |snacks.nvim-picker-sources-search_history|
   - select                                 |snacks.nvim-picker-sources-select|
   - smart                                   |snacks.nvim-picker-sources-smart|
@@ -2296,6 +2297,31 @@ Special picker that resumes the last picker
 
 >lua
     {}
+<
+
+
+SCRATCH                                   *snacks.nvim-picker-sources-scratch*
+
+>vim
+    :lua Snacks.picker.scratch(opts?)
+<
+
+Open or create scratch buffers
+
+>lua
+    {
+      finder = "scratch",
+      format = "scratch_format",
+      confirm = "scratch_open",
+      win = {
+        input = {
+          keys = {
+            ["<c-x>"] = { "scratch_delete", mode = { "n", "i" } },
+            ["<c-n>"] = { "scratch_new", mode = { "n", "i" } },
+          },
+        },
+      },
+    }
 <
 
 

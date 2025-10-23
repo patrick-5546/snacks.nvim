@@ -350,7 +350,7 @@ function M.ui_select(opts)
         ret[#ret + 1] = { " " }
         ret[#ret + 1] = { ("[%s]"):format(client.name), "SnacksPickerSpecial" }
       end
-    elseif opts.kind == "snacks" and opts.format_item then
+    elseif opts.format_item then
       local t = opts.format_item(item.item, true)
       if type(t) == "string" then
         ret[#ret + 1] = { t }
@@ -358,7 +358,7 @@ function M.ui_select(opts)
         vim.list_extend(ret, t)
       end
     else
-      ret[#ret + 1] = { item.formatted }
+      ret[#ret + 1] = { tostring(item.item) }
     end
     return ret
   end

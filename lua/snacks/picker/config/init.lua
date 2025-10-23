@@ -40,7 +40,9 @@ function M.fix_keys(opts)
   return opts
 end
 
----@param opts? snacks.picker.Config
+---@generic T:snacks.picker.Config
+---@param opts? T
+---@return T
 function M.get(opts)
   M.setup()
   opts = M.fix_keys(opts)

@@ -837,6 +837,8 @@ M.search_history = {
 
 --- Config used by `vim.ui.select`.
 --- Not meant to be used directly.
+---@class snacks.picker.select.Config: snacks.picker.Config
+---@field kinds? table<string, snacks.picker.Config|{}> custom snacks picker configs for specific `vim.ui.select` kinds
 M.select = {
   items = {}, -- these are set dynamically
   main = { current = true },

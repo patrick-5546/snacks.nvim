@@ -1126,7 +1126,8 @@ Neovim commands
 ```
 
 ```lua
----@type snacks.picker.git.Config
+---@class snacks.picker.git.diff.Config: snacks.picker.git.Config
+---@field base? string base commit/branch/tag to diff against (default: HEAD)
 {
   finder = "git_diff",
   format = "file",

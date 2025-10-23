@@ -333,7 +333,8 @@ M.git_status = {
   },
 }
 
----@type snacks.picker.git.Config
+---@class snacks.picker.git.diff.Config: snacks.picker.git.Config
+---@field base? string base commit/branch/tag to diff against (default: HEAD)
 M.git_diff = {
   finder = "git_diff",
   format = "file",

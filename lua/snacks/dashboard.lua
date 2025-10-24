@@ -1032,7 +1032,7 @@ function M.sections.terminal(opts)
           end
           if first and has_cache then -- clear the screen if cache was expired
             first = false
-            send("\27[H\27[2J") -- clear screen
+            send("\27c") -- clear screen
           end
           pcall(send, data)
         end,

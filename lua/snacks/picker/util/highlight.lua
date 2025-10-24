@@ -2,12 +2,27 @@
 local M = {}
 
 M.langs = {} ---@type table<string, boolean>
+M._scratch_buf = nil ---@type number?
+
+---@param source string
+function M.scratch_buf(source)
+  if not (M._scratch_buf and vim.api.nvim_buf_is_valid(M._scratch_buf)) then
+    M._scratch_buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_name(M._scratch_buf, "snacks://picker/highlight")
+  end
+  vim.bo[M._scratch_buf].fixeol = false
+  vim.bo[M._scratch_buf].eol = false
+  vim.api.nvim_buf_set_lines(M._scratch_buf, 0, -1, false, vim.split(source, "\n", { plain = true }))
+  return M._scratch_buf
+end
 
 ---@param opts? {buf?:number, code?:string, ft?:string, lang?:string, file?:string, extmarks?:boolean}
 function M.get_highlights(opts)
   opts = opts or {}
-  local source = assert(opts.buf or opts.code, "buf or code is required")
+  assert(opts.buf or opts.code, "buf or code is required")
   assert(not (opts.buf and opts.code), "only one of buf or code is allowed")
+
+  local buf = opts.buf or M.scratch_buf(opts.code)
 
   local ret = {} ---@type table<number, snacks.picker.Extmark[]>
 
@@ -16,15 +31,11 @@ function M.get_highlights(opts)
     or (opts.file and vim.filetype.match({ filename = opts.file, buf = 0 }))
     or vim.bo.filetype
   local lang = Snacks.util.get_lang(opts.lang or ft)
+  lang = lang and lang:lower() or nil
   local parser ---@type vim.treesitter.LanguageTree?
   if lang then
-    lang = lang:lower()
     local ok = false
-    if opts.buf then
-      ok, parser = pcall(vim.treesitter.get_parser, opts.buf, lang)
-    else
-      ok, parser = pcall(vim.treesitter.get_string_parser, source, lang)
-    end
+    ok, parser = pcall(vim.treesitter.get_parser, buf, lang)
     parser = ok and parser or nil
   end
 
@@ -40,14 +51,14 @@ function M.get_highlights(opts)
         return
       end
 
-      for capture, node, metadata in query:iter_captures(tstree:root(), source) do
+      for capture, node, metadata in query:iter_captures(tstree:root(), buf) do
         ---@type string
         local name = query.captures[capture]
         if name ~= "spell" then
           local range = { node:range() } ---@type number[]
           local multi = range[1] ~= range[3]
           local text = multi
-              and vim.split(vim.treesitter.get_node_text(node, source, metadata[capture]), "\n", { plain = true })
+              and vim.split(vim.treesitter.get_node_text(node, buf, metadata[capture]), "\n", { plain = true })
             or {}
           for row = range[1] + 1, range[3] + 1 do
             local first, last = row == range[1] + 1, row == range[3] + 1

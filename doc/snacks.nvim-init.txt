@@ -97,6 +97,7 @@ Table of Contents                         *snacks.nvim-init-table-of-contents*
     ---@field image snacks.image
     ---@field indent snacks.indent
     ---@field input snacks.input
+    ---@field keymap snacks.keymap
     ---@field layout snacks.layout
     ---@field lazygit snacks.lazygit
     ---@field meta snacks.meta

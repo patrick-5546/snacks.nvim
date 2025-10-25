@@ -978,6 +978,9 @@ function M.sections.terminal(opts)
     local chan = vim.api.nvim_open_term(buf, {})
 
     local function send(data, refresh)
+      if not vim.api.nvim_buf_is_valid(buf) then
+        return
+      end
       vim.api.nvim_chan_send(chan, data)
       if refresh then
         -- HACK: this forces a refresh of the terminal buffer and prevents flickering

@@ -13,18 +13,12 @@ local M = {}
 function M.get_trash_cmds(path)
   ---@type string[][]
   local ret = {
-    { "gio", "trash", path }, -- Most universally available on modern Linux
     { "trash", path }, -- trash-cli (Python or Node.js)
+    { "gio", "trash", path }, -- Most universally available on modern Linux
     { "kioclient5", "move", path, "trash:/" }, -- KDE Plasma 5
     { "kioclient", "move", path, "trash:/" }, -- KDE Plasma 6
   }
-  if vim.fn.has("mac") == 1 then
-    ret[#ret + 1] = {
-      "osascript",
-      "-e",
-      ('tell application "Finder" to delete POSIX file "%s"'):format(path:gsub("\\", "\\\\"):gsub('"', '\\"')),
-    }
-  elseif vim.fn.has("win32") == 1 then
+  if vim.fn.has("win32") == 1 then
     ret[#ret + 1] = {
       "powershell",
       "-NoProfile",

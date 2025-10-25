@@ -1,4 +1,4 @@
-*snacks-picker*        For Neovim        Last change: 2025 October 24
+*snacks-picker*        For Neovim        Last change: 2025 October 25
 
 ==============================================================================
 Table of Contents                       *snacks.nvim-picker-table-of-contents*

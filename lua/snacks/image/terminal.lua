@@ -259,7 +259,7 @@ function M.detect(cb)
     end,
   })
 
-  timer:start(200, 0, function()
+  timer:start(1000, 0, function()
     vim.schedule(function()
       pcall(vim.api.nvim_del_autocmd, id)
     end)

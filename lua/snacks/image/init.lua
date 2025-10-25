@@ -304,7 +304,7 @@ function M.health()
   require("snacks.image.terminal").detect(function()
     detected = true
   end)
-  vim.wait(500, function()
+  vim.wait(1500, function()
     return detected
   end, 10)
   Snacks.health.have_tool({ "kitty", "wezterm", "ghostty" })

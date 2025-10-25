@@ -73,10 +73,16 @@ local function setup()
   })
 end
 
----@param filter vim.lsp.get_clients.Filter
+---@param filter? vim.lsp.get_clients.Filter
 ---@param cb snacks.lsp.handler.cb
+---@overload fun(cb: snacks.lsp.handler.cb)
 function M.on(filter, cb)
   setup()
+  filter = filter or {}
+  if type(filter) == "function" then
+    cb = filter
+    filter = {}
+  end
   table.insert(_handlers, { filter = filter, cb = cb, done = {} })
   _handle(filter)
 end

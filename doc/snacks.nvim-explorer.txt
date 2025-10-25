@@ -7,6 +7,7 @@ Table of Contents                     *snacks.nvim-explorer-table-of-contents*
 2. Config                                        |snacks.nvim-explorer-config|
 3. Module                                        |snacks.nvim-explorer-module|
   - Snacks.explorer()          |snacks.nvim-explorer-module-snacks.explorer()|
+  - Snacks.explorer.health()|snacks.nvim-explorer-module-snacks.explorer.health()|
   - Snacks.explorer.open()|snacks.nvim-explorer-module-snacks.explorer.open()|
   - Snacks.explorer.reveal()|snacks.nvim-explorer-module-snacks.explorer.reveal()|
 4. Links                                          |snacks.nvim-explorer-links|
@@ -78,6 +79,7 @@ see `snacks.picker.explorer.Config`
     ---@class snacks.explorer.Config
     {
       replace_netrw = true, -- Replace netrw with the snacks explorer
+      trash = true, -- Use the system trash when deleting files
     }
 <
 
@@ -91,6 +93,13 @@ see `snacks.picker.explorer.Config`
 >lua
     ---@type fun(opts?: snacks.picker.explorer.Config): snacks.Picker
     Snacks.explorer()
+<
+
+
+`Snacks.explorer.health()`                          *Snacks.explorer.health()*
+
+>lua
+    Snacks.explorer.health()
 <
 
 

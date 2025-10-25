@@ -65,6 +65,7 @@ To configure the explorer picker, see `snacks.picker.explorer.Config`
 ---@class snacks.explorer.Config
 {
   replace_netrw = true, -- Replace netrw with the snacks explorer
+  trash = true, -- Use the system trash when deleting files
 }
 ```
 
@@ -75,6 +76,12 @@ To configure the explorer picker, see `snacks.picker.explorer.Config`
 ```lua
 ---@type fun(opts?: snacks.picker.explorer.Config): snacks.Picker
 Snacks.explorer()
+```
+
+### `Snacks.explorer.health()`
+
+```lua
+Snacks.explorer.health()
 ```
 
 ### `Snacks.explorer.open()`

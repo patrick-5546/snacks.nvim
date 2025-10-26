@@ -242,7 +242,7 @@ function M.git_log(ctx)
   M.cmd(cmd, ctx, {
     ft = "git",
     ---@param text string
-    on_line = function(text)
+    on_line = function(_, text)
       local commit, msg, date, author = text:match("^(%S+) (.*) %((.*)%) <(.*)>$")
       if commit then
         row = row + 1

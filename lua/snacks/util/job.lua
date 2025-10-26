@@ -106,7 +106,7 @@ function Job:setup()
   self.opts.on_stdout = wrap(on_output, self.opts.on_stdout)
   self.opts.on_stderr = wrap(on_output, self.opts.on_stderr)
   self.opts.on_exit = wrap(function(job_id, code)
-    if not vim.api.nvim_buf_is_valid(self.buf) then
+    if not self:buf_valid() then
       return
     end
     self:emit()
@@ -133,7 +133,7 @@ end
 ---@param text string
 ---@param line number
 function Job:on_line(text, line)
-  if vim.api.nvim_buf_is_valid(self.buf) then
+  if self:buf_valid() then
     vim.bo[self.buf].modifiable = true
     vim.api.nvim_buf_set_lines(self.buf, line == 1 and 0 or -1, -1, true, { text })
     vim.bo[self.buf].modifiable = false
@@ -204,7 +204,7 @@ function Job:stop()
 end
 
 function Job:set_lines(from, to, lines)
-  if vim.api.nvim_buf_is_valid(self.buf) then
+  if self:buf_valid() then
     vim.bo[self.buf].modifiable = true
     vim.api.nvim_buf_set_lines(self.buf, from, to, true, lines)
     vim.bo[self.buf].modifiable = false
@@ -217,7 +217,7 @@ function Job:hide_process_exited()
     return timer:is_active() and timer:stop() == 0 and timer:close()
   end
   local check = function()
-    if vim.api.nvim_buf_is_valid(self.buf) then
+    if self:buf_valid() then
       for i, line in ipairs(vim.api.nvim_buf_get_lines(self.buf, 0, -1, true)) do
         if line:find("^%[Process exited 0%]") then
           self:set_lines(i - 1, i, {})
@@ -230,7 +230,18 @@ function Job:hide_process_exited()
   vim.defer_fn(stop, 1000)
 end
 
+function Job:running()
+  return self.id and vim.fn.jobwait({ self.id }, 0)[1] == -1
+end
+
+function Job:buf_valid()
+  return self.buf and vim.api.nvim_buf_is_valid(self.buf)
+end
+
 function Job:emit()
+  if not self:buf_valid() then
+    return
+  end
   while self.line < #self.lines do
     self.lines[self.line] = self.lines[self.line]:gsub("\r$", "")
     if self.opts.on_line then
@@ -242,7 +253,10 @@ end
 
 ---@param data string[]
 function Job:on_output(data)
-  if self.chan and vim.api.nvim_buf_is_valid(self.buf) then
+  if not self:buf_valid() then
+    return
+  end
+  if self.chan then
     vim.api.nvim_chan_send(self.chan, table.concat(data, "\n"))
   end
   self.lines[#self.lines] = self.lines[#self.lines] .. data[1]
@@ -251,7 +265,7 @@ function Job:on_output(data)
 end
 
 function Job:refresh()
-  if not vim.api.nvim_buf_is_valid(self.buf) then
+  if not self:buf_valid() then
     return
   end
   -- HACK: this forces a refresh of the terminal buffer and prevents flickering

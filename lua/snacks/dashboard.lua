@@ -951,7 +951,7 @@ end
 function M.sections.terminal(opts)
   return function(self)
     local cmd = opts.cmd or 'echo "No `cmd` provided"'
-    if type(cmd) == "string" and vim.fn.has("linux") == 1 then
+    if type(cmd) == "string" and vim.fn.has("linux") == 1 and not vim.o.shell:find("nu") then
       -- work-around for https://github.com/folke/snacks.nvim/issues/1706
       -- jobstart+pty sometimes doesn't flush the full output before exiting
       cmd = cmd .. "; sleep .1"

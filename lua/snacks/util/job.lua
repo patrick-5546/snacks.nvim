@@ -161,7 +161,14 @@ function Job:start()
         cmd = self.cmd,
         cwd = self.opts.cwd,
         group = true,
-        footer = ("```lua\n%s\n```"):format(vim.inspect(self.opts)),
+        props = {
+          cwd = self.opts.cwd,
+          term = self.opts.term,
+          pty = self.opts.pty,
+          input = self.opts.input and "<provided>",
+          output = self.opts.output and "<provided>",
+          ansi = self.opts.ansi,
+        },
       })
     end)
   end

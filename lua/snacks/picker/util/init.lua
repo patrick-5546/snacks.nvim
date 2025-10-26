@@ -92,18 +92,21 @@ function M.cmd(cmd, cb, opts)
       on_stdout = function(_, data)
         output[#output + 1] = table.concat(data, "\n")
       end,
+      on_stderr = function(_, data)
+        output[#output + 1] = table.concat(data, "\n")
+      end,
       on_exit = function(_, code)
-        cb(output, code)
-        if code ~= 0 then
-          Snacks.notify.error(
-            ("Terminal **cmd** `%s` failed with code `%d`:\n- `vim.o.shell = %q`\n\nOutput:\n%s"):format(
-              cmd,
-              code,
-              vim.o.shell,
-              vim.trim(table.concat(output, ""))
-            )
-          )
+        if code == 0 then
+          cb(output, code)
+          return
         end
+        Snacks.debug.cmd({
+          header = "Command failed",
+          cmd = cmd,
+          props = { code = code, ["vim.o.shell"] = vim.o.shell },
+          footer = vim.trim(table.concat(output, "")),
+          level = vim.log.levels.ERROR,
+        })
       end,
     })
   )

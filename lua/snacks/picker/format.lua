@@ -58,6 +58,9 @@ function M.filename(item, picker)
     local icon, hl = Snacks.util.icon(name, cat, {
       fallback = picker.opts.icons.files,
     })
+    if item.buftype == "terminal" then
+      icon, hl = " ", "Special"
+    end
     if item.dir and item.open then
       icon = picker.opts.icons.files.dir_open
     end
@@ -637,7 +640,27 @@ function M.buffer(item, picker)
   ret[#ret + 1] = { " " }
   ret[#ret + 1] = { Snacks.picker.util.align(item.flags, 2, { align = "right" }), "SnacksPickerBufFlags" }
   ret[#ret + 1] = { " " }
+
   vim.list_extend(ret, M.filename(item, picker))
+
+  if item.buftype ~= "" then
+    ret[#ret + 1] = { " " }
+    vim.list_extend(ret, {
+      { "[", "SnacksPickerDelim" },
+      { item.buftype, "SnacksPickerBufType" },
+      { "]", "SnacksPickerDelim" },
+    })
+  end
+
+  if item.name == "" and item.filetype ~= "" then
+    ret[#ret + 1] = { " " }
+    vim.list_extend(ret, {
+      { "[", "SnacksPickerDelim" },
+      { item.filetype, "SnacksPickerFileType" },
+      { "]", "SnacksPickerDelim" },
+    })
+  end
+
   return ret
 end
 

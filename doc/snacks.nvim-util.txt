@@ -1,4 +1,4 @@
-*snacks-util*         For Neovim         Last change: 2025 October 25
+*snacks-util*         For Neovim         Last change: 2025 October 26
 
 ==============================================================================
 Table of Contents                         *snacks.nvim-util-table-of-contents*

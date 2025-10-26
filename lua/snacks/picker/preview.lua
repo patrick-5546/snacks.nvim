@@ -82,6 +82,10 @@ function M.file(ctx)
     ctx.preview:notify("Buffer no longer exists", "error")
     return
   end
+  if ctx.item.buf and not vim.api.nvim_buf_is_valid(ctx.item.buf) and (ctx.item.file or ""):sub(1, 1) == "[" then
+    ctx.preview:notify("Buffer no longer exists", "error")
+    return
+  end
 
   -- used by some LSP servers that load buffers with custom URIs
   if ctx.item.buf and vim.uri_from_bufnr(ctx.item.buf):sub(1, 4) ~= "file" then
@@ -184,7 +188,6 @@ function M.cmd(cmd, ctx, opts)
     Snacks.config.merge(opts, {
       debug = ctx.picker.opts.debug.proc,
       term = opts.term ~= false and not opts.ft and opts.pty ~= false,
-      pty = false,
       width = vim.api.nvim_win_get_width(ctx.win),
       height = vim.api.nvim_win_get_height(ctx.win),
       cwd = ctx.item.cwd or ctx.picker.opts.cwd,

@@ -744,11 +744,11 @@ function M:update(opts)
   end
 
   if self.shown then
-    if not self:is_active() then
+    if not self:is_active() or list_count > 3 then
       self.list:unpause()
     end
     -- update list and input
-    if not self.list.paused then
+    if not self.input.paused then
       self.input:update()
     end
     self.list:update(opts)
@@ -819,7 +819,7 @@ function M:find(opts)
     self:update_titles()
     if self:count() > 0 then
       -- pause rapid list updates to prevent flickering
-      self.list:pause(60)
+      self.list:pause(2000)
     end
     self.finder:run(self)
   end
@@ -834,6 +834,9 @@ function M:find(opts)
         opts.on_done()
       end
     end
+
+    self.input:pause(60)
+
     self:progress()
   end
 end

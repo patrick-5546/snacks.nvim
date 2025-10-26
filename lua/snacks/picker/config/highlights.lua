@@ -45,7 +45,7 @@ Snacks.util.set_hl({
   BufNr = "Number",
   BufFlags = "NonText",
   BufType = "Function",
-  FileType = "String",
+  FileType = "DiagnosticHint",
   KeymapRhs = "NonText",
   Time = "Special",
   UndoAdded = "Added",

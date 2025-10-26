@@ -421,7 +421,7 @@ function M:update_titles()
           text = text:gsub("{flags}", "")
           has_flags = true
         end
-        text = vim.trim(Snacks.picker.util.tpl(text, data)):gsub("%s+", " ")
+        text = vim.trim(Snacks.picker.util.tpl(text, data)):gsub("([%w%p])%s+", "%1 ")
         if text ~= "" then
           -- HACK: add extra space when last char is non word like an icon
           text = text:sub(-1):match("[%w%p]") and text or text .. " "

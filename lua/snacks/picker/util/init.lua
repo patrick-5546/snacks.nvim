@@ -71,6 +71,16 @@ function M.truncpath(path, len, opts)
   return first .. "/…/" .. ret
 end
 
+---@param prompt string
+---@param fn fun()
+function M.confirm(prompt, fn)
+  Snacks.picker.select({ "No", "Yes" }, { prompt = prompt }, function(_, idx)
+    if idx == 2 then
+      fn()
+    end
+  end)
+end
+
 ---@param cmd string|string[]
 ---@param cb fun(output: string[], code: number)
 ---@param opts? {env?: table<string, string>, cwd?: string}

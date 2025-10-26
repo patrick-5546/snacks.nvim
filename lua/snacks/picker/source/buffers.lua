@@ -38,11 +38,11 @@ function M.buffers(opts, ctx)
         name = vim.api.nvim_buf_get_name(buf),
         buftype = vim.bo[buf].buftype,
         filetype = vim.bo[buf].filetype,
-        text = buf .. " " .. name,
         file = name,
         info = info,
         pos = mark[1] ~= 0 and mark or { info.lnum, 0 },
       })
+      items[#items].text = Snacks.picker.util.text(items[#items], { "buf", "name", "filetype", "buftype" })
     end
   end
   if opts.sort_lastused then

@@ -183,7 +183,7 @@ function Job:start()
     return self:error("Failed to start job")
   end
 
-  vim.api.nvim_create_autocmd("BufWipeout", {
+  vim.api.nvim_create_autocmd({ "BufWipeout", "BufDelete" }, {
     buffer = self.buf,
     callback = function()
       self:stop()

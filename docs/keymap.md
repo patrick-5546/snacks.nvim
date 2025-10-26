@@ -94,7 +94,7 @@ Snacks.keymap.del("n", "<leader>ca", { lsp = { method = "textDocument/codeAction
 ---@class snacks.keymap.set.Opts: vim.keymap.set.Opts
 ---@field ft? string|string[] Filetype(s) to set the keymap for.
 ---@field lsp? vim.lsp.get_clients.Filter Set for buffers with LSP clients matching this filter.
----@field enabled? boolean|fun(buf?:number): boolean A function that returns a boolean indicating whether to set the keymap.
+---@field enabled? boolean|fun(buf?:number): boolean condition to enable the keymap.
 ```
 
 ```lua

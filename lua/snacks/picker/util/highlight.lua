@@ -336,7 +336,10 @@ function M.set(buf, ns, row, hl)
     table.remove(hl)
   end
   local line_text, extmarks = Snacks.picker.highlight.to_text(hl)
+  local modifiable = vim.bo[buf].modifiable
+  vim.bo[buf].modifiable = true
   vim.api.nvim_buf_set_lines(buf, row - 1, row, false, { line_text })
+  vim.bo[buf].modifiable = modifiable
   for _, extmark in ipairs(extmarks) do
     local col = extmark.col
     extmark.col = nil

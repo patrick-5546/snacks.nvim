@@ -367,9 +367,11 @@ function M.check(win)
       vim.cmd(("keepjumps normal! %s"):format(table.concat(commands, "")))
 
       -- restore count (see #1024)
-      local cursor = vim.api.nvim_win_get_cursor(win)
-      vim.cmd(("keepjumps normal! %dzh"):format(count))
-      vim.api.nvim_win_set_cursor(win, cursor)
+      if vim.v.count ~= count then
+        local cursor = vim.api.nvim_win_get_cursor(win)
+        vim.cmd(("keepjumps normal! %dzh"):format(count))
+        vim.api.nvim_win_set_cursor(win, cursor)
+      end
 
       state:update()
     end)

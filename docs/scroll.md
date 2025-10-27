@@ -35,7 +35,7 @@ Similar plugins:
 ---@field animate_repeat snacks.animate.Config|{}|{delay:number}
 {
   animate = {
-    duration = { step = 15, total = 250 },
+    duration = { step = 10, total = 150 },
     easing = "linear",
   },
   -- faster animation when repeating scroll after delay

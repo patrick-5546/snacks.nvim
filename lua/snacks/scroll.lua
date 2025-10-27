@@ -27,7 +27,7 @@ State.__index = State
 ---@field animate_repeat snacks.animate.Config|{}|{delay:number}
 local defaults = {
   animate = {
-    duration = { step = 15, total = 250 },
+    duration = { step = 10, total = 150 },
     easing = "linear",
   },
   -- faster animation when repeating scroll after delay
@@ -295,22 +295,20 @@ function M.check(win)
   -- new target
   stats.targets = stats.targets + 1
   state.target = vim.deepcopy(state.view)
+  state:stop() -- stop any ongoing animation
   state:wo({ virtualedit = "all", scrolloff = 0 })
 
   local now = uv.hrtime()
   local repeat_delta = (now - state.last) / 1e6
   state.last = now
 
+  local is_repeat = repeat_delta <= config.animate_repeat.delay
   ---@type snacks.animate.Opts
-  local opts = vim.tbl_extend(
-    "force",
-    vim.deepcopy(repeat_delta <= config.animate_repeat.delay and config.animate_repeat or config.animate),
-    {
-      int = false,
-      id = ("scroll_%d"):format(win),
-      buf = state.buf,
-    }
-  )
+  local opts = vim.tbl_extend("force", vim.deepcopy(is_repeat and config.animate_repeat or config.animate), {
+    int = true,
+    id = ("scroll%s%d"):format(is_repeat and "_repeat_" or "_", win),
+    buf = state.buf,
+  })
 
   local scrolls = 0
   local col_from, col_to = 0, 0

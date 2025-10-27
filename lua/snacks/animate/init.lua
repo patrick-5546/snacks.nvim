@@ -74,9 +74,9 @@ Animation.__index = Animation
 function Animation.new(opts)
   local id = opts and opts.id or next_id()
 
-  if active[id] then -- reuse existing animation
+  if active[id] then
     active[id]:stop()
-    return active[id]
+    active[id] = nil
   end
 
   local self = setmetatable({}, Animation)

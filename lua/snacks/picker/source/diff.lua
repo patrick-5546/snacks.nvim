@@ -106,8 +106,8 @@ function M.parse(lines)
       emit()
       local file ---@type string?
       if text:find("^diff") then
-        text = text:gsub("^diff%s*", ""):gsub("^%-%S+%s*", "")
-        file = text:match('^"%a/(.-)"') or text:match("^%a/(.-) %a/") or text:match("^%a/(.*)$") or text
+        file = text:gsub("^diff%s*", ""):gsub("^%-%S+%s*", "")
+        file = file:match('^"%a/(.-)"') or file:match("^%a/(.-) %a/") or file:match("^%a/(.*)$") or file
       elseif text:find("^%-%-%-") then
         file = text:match("^%-%-%- %a/([^\t]+)") or text:match("^%-%-%- ([^\t]+)")
       end

@@ -11,7 +11,6 @@
 ---@field title? string
 ---@field split_layout? boolean
 ---@field opts? snacks.picker.previewers.Config
----@field _spinner? snacks.util.Spinner
 local M = {}
 M.__index = M
 
@@ -165,7 +164,6 @@ function M:show(picker, opts)
   self.item = item
   self.filter = picker:filter()
   self.pos = item and item.pos or nil
-  self:spinner(false)
   if item then
     local buf = self.win.buf
     local ok, err = pcall(
@@ -234,7 +232,6 @@ function M:reset()
   end
   vim.api.nvim_buf_clear_namespace(self.win.buf, -1, 0, -1)
   self:set_title()
-  self:spinner(false)
   vim.treesitter.stop(self.win.buf)
   vim.bo[self.win.buf].modifiable = true
   self:set_lines({})
@@ -290,10 +287,6 @@ function M:highlight(opts)
   if not (lang and pcall(vim.treesitter.start, self.win.buf, lang)) and ft then
     vim.bo[self.win.buf].syntax = ft
   end
-end
-
-function M:ns()
-  return ns
 end
 
 -- show the item location
@@ -422,17 +415,7 @@ function M:notify(msg, level, opts)
   self:highlight({ lang = "lua" })
 end
 
-function M:spinner(enable)
-  if enable == false then
-    if self._spinner then
-      self._spinner:stop()
-      self._spinner = nil
-    end
     return
   end
-  assert(self.win:buf_valid(), "invalid buffer")
-  local ret = Snacks.picker.util.spinner(self.win.buf)
-  self._spinner = ret
-  return ret
 end
 return M

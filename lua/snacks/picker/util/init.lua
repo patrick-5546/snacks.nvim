@@ -646,53 +646,9 @@ function M.globber(globs)
   end
 end
 
----@param cmdline string
----@return string[]
-function M.parse_cmdline(cmdline)
-  local args = {} ---@type string[]
-  local current = ""
-  local in_quote = false
-  local quote_char = nil
-  local i = 1
-
-  while i <= #cmdline do
-    local char = cmdline:sub(i, i)
-    local next_char = cmdline:sub(i + 1, i + 1)
-
-    if char == "\\" and next_char ~= "" then
-      -- Escaped character - take next char literally
-      current = current .. next_char
-      i = i + 2
-    elseif not in_quote and (char == '"' or char == "'") then
-      -- Start quote
-      in_quote = true
-      quote_char = char
-      i = i + 1
-    elseif in_quote and char == quote_char then
-      -- End quote
-      in_quote = false
-      quote_char = nil
-      i = i + 1
-    elseif not in_quote and char:match("%s") then
-      -- Whitespace outside quotes - split arg
-      if current ~= "" then
-        args[#args + 1] = current
-        current = ""
-      end
-      i = i + 1
-    else
-      -- Regular character or whitespace inside quotes
-      current = current .. char
-      i = i + 1
-    end
-  end
-
-  -- Add last arg if any
-  if current ~= "" then
-    args[#args + 1] = current
-  end
-
-  return args
+---@param buf number
+function M.spinner(buf)
+  return require("snacks.picker.util.spinner").new(buf)
 end
 
 return M

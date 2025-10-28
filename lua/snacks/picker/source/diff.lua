@@ -106,14 +106,8 @@ function M.parse(lines)
       emit()
       local file ---@type string?
       if text:find("^diff") then
-        local parsed = Snacks.picker.util.parse_cmdline(text)
-        for i = 2, #parsed do
-          local arg = parsed[i]
-          if not arg:find("^%-") then
-            file = arg:match("^%a/(.*)") or arg
-            break
-          end
-        end
+        text = text:gsub("^diff%s*", ""):gsub("^%-%S+%s*", "")
+        file = text:match('^"%a/(.-)"') or text:match("^%a/(.-) %a/") or text:match("^%a/(.*)$") or text
       elseif text:find("^%-%-%-") then
         file = text:match("^%-%-%- %a/([^\t]+)") or text:match("^%-%-%- ([^\t]+)")
       end

@@ -235,6 +235,21 @@ describe("picker.diff", function()
       assert.equals("my file.txt", blocks[1].file)
     end)
 
+    it("handles files with spaces in name without quotes", function()
+      local lines = {
+        "diff --git a/my file.txt b/my file.txt",
+        "--- a/my file.txt",
+        "+++ b/my file.txt",
+        "@@ -1,1 +1,1 @@",
+        "-old",
+        "+new",
+      }
+
+      local blocks = diff.parse(lines)
+      assert.equals(1, #blocks)
+      assert.equals("my file.txt", blocks[1].file)
+    end)
+
     it("handles files in subdirectories", function()
       local lines = {
         "diff --git a/path/to/file.txt b/path/to/file.txt",

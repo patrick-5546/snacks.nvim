@@ -337,7 +337,7 @@ M.git_status = {
 ---@field group? boolean group changes by file (when false, show individual hunks)
 ---@field base? string base commit/branch/tag to diff against (default: HEAD)
 M.git_diff = {
-  group = true,
+  group = false,
   finder = "git_diff",
   format = "file",
   preview = "diff",

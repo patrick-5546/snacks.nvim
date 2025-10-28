@@ -16,7 +16,7 @@ function M.new(buf)
     self:update()
   end, { ms = 100 })
 
-  vim.api.nvim_create_autocmd({ "BufWritePost", "WinScrolled" }, {
+  vim.api.nvim_create_autocmd({ "BufWritePost", "WinScrolled", "BufWinEnter" }, {
     group = group,
     buffer = buf,
     callback = vim.schedule_wrap(update),
@@ -29,6 +29,9 @@ function M.new(buf)
         self:conceal()
       end
     end,
+  })
+  vim.api.nvim_buf_attach(buf, false, {
+    on_lines = update,
   })
   vim.schedule(update)
   return self

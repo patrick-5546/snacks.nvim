@@ -418,4 +418,24 @@ end
     return
   end
 end
+
+function M:markdown()
+  if not self.win:valid() then
+    return
+  end
+  local buf, win = self.win.buf, self.win.win ---@type number, number
+
+  vim.bo[buf].filetype = "markdown"
+  Snacks.image.doc.attach(buf)
+
+  if package.loaded["render-markdown"] then
+    require("render-markdown.core.ui").update(buf, win, "Snacks", true)
+  elseif package.loaded["markview"] then
+    local strict = package.loaded["markview"].strict_render
+    if strict then
+      strict:render(buf)
+    end
+  end
+end
+
 return M

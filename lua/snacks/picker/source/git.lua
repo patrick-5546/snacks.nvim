@@ -44,9 +44,8 @@ function M.files(opts, ctx)
     ctx.picker:set_cwd(opts.cwd)
   end
   local cwd = svim.fs.normalize(opts.cwd) or nil
-  return require("snacks.picker.source.proc").proc({
-    opts,
-    {
+  return require("snacks.picker.source.proc").proc(
+    ctx:opts({
       cmd = "git",
       args = args,
       ---@param item snacks.picker.finder.Item
@@ -54,8 +53,9 @@ function M.files(opts, ctx)
         item.cwd = cwd
         item.file = item.text
       end,
-    },
-  }, ctx)
+    }),
+    ctx
+  )
 end
 
 ---@param opts snacks.picker.git.grep.Config
@@ -89,9 +89,8 @@ function M.grep(opts, ctx)
     ctx.picker:set_cwd(opts.cwd)
   end
   local cwd = svim.fs.normalize(opts.cwd) or nil
-  return require("snacks.picker.source.proc").proc({
-    opts,
-    {
+  return require("snacks.picker.source.proc").proc(
+    ctx:opts({
       cmd = "git",
       args = args,
       notify = false,
@@ -110,8 +109,9 @@ function M.grep(opts, ctx)
           item.pos = { tonumber(line), tonumber(col) - 1 }
         end
       end,
-    },
-  }, ctx)
+    }),
+    ctx
+  )
 end
 
 ---@param opts snacks.picker.git.log.Config
@@ -190,9 +190,8 @@ function M.log(opts, ctx)
       end)
     end
 
-    Proc.proc({
-      opts,
-      {
+    Proc.proc(
+      ctx:opts({
         cwd = cwd,
         cmd = "git",
         args = args,
@@ -211,8 +210,9 @@ function M.log(opts, ctx)
           item.file = file
           item.files = renames
         end,
-      },
-    }, ctx)(cb)
+      }),
+      ctx
+    )(cb)
   end
 end
 
@@ -227,9 +227,8 @@ function M.status(opts, ctx)
   local cwd = svim.fs.normalize(opts and opts.cwd or uv.cwd() or ".") or nil
   cwd = Snacks.git.get_root(cwd)
   local prev ---@type snacks.picker.finder.Item?
-  return require("snacks.picker.source.proc").proc({
-    opts,
-    {
+  return require("snacks.picker.source.proc").proc(
+    ctx:opts({
       sep = "\0",
       cwd = cwd,
       cmd = "git",
@@ -249,8 +248,9 @@ function M.status(opts, ctx)
           return false
         end
       end,
-    },
-  }, ctx)
+    }),
+    ctx
+  )
 end
 
 ---@param opts snacks.picker.git.diff.Config
@@ -334,9 +334,8 @@ function M.branches(opts, ctx)
     -- stylua: ignore end
   } ---@type string[]
 
-  return require("snacks.picker.source.proc").proc({
-    opts,
-    {
+  return require("snacks.picker.source.proc").proc(
+    ctx:opts({
       cwd = cwd,
       cmd = "git",
       args = args,
@@ -361,8 +360,9 @@ function M.branches(opts, ctx)
         Snacks.notify.warn("failed to parse branch: " .. item.text)
         return false -- skip items we could not parse
       end,
-    },
-  }, ctx)
+    }),
+    ctx
+  )
 end
 
 ---@param opts snacks.picker.git.Config
@@ -372,9 +372,8 @@ function M.stash(opts, ctx)
   local cwd = svim.fs.normalize(opts and opts.cwd or uv.cwd() or ".") or nil
   cwd = Snacks.git.get_root(cwd)
 
-  return require("snacks.picker.source.proc").proc({
-    opts,
-    {
+  return require("snacks.picker.source.proc").proc(
+    ctx:opts({
       cwd = cwd,
       cmd = "git",
       args = args,
@@ -396,8 +395,9 @@ function M.stash(opts, ctx)
         Snacks.notify.warn("failed to parse stash:\n```git\n" .. item.text .. "\n```")
         return false -- skip items we could not parse
       end,
-    },
-  }, ctx)
+    }),
+    ctx
+  )
 end
 
 ---@class snacks.picker.git.Status

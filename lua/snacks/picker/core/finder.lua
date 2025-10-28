@@ -13,6 +13,23 @@ M.__index = M
 ---@field filter snacks.picker.Filter
 ---@field async snacks.picker.Async
 ---@field meta table<string, any>
+local Ctx = {}
+Ctx.__index = Ctx
+
+---@generic T: snacks.picker.Config
+---@param opts T
+---@return T
+function Ctx:opts(opts)
+  return Snacks.config.merge(vim.deepcopy(self.picker.opts), opts)
+end
+
+function Ctx:cwd()
+  return self.filter.cwd
+end
+
+function Ctx:git_root()
+  return Snacks.git.get_root(self:cwd()) or self:cwd()
+end
 
 ---@alias snacks.picker.finder.async fun(cb:async fun(item:snacks.picker.finder.Item))
 ---@alias snacks.picker.finder.result snacks.picker.finder.Item[] | snacks.picker.finder.async
@@ -53,21 +70,18 @@ end
 ---@param picker snacks.Picker
 function M:ctx(picker)
   local notified = false
-  ---@type snacks.picker.finder.ctx
-  local ret = {
-    picker = picker,
-    async = setmetatable({}, {
-      __index = function()
-        if not notified then
-          notified = true
-          Snacks.notify.warn("You can only use the `async` object in async functions")
-        end
-      end,
-    }),
-    filter = self.filter,
-    meta = {},
-  }
-  setmetatable(ret, { __index = M:deprecated(self.filter) })
+  local ret = setmetatable({}, Ctx)
+  ret.picker = picker
+  ret.filter = self.filter
+  ret.meta = {}
+  ret.async = setmetatable({}, {
+    __index = function()
+      if not notified then
+        notified = true
+        Snacks.notify.warn("You can only use the `async` object in async functions")
+      end
+    end,
+  })
   return ret
 end
 
@@ -79,30 +93,6 @@ function M:init(filter)
   return ret
 end
 
----@generic T: table
----@param t T
----@return T
-function M:deprecated(t)
-  local notified = false
-  return setmetatable({}, {
-    __index = function(_, k)
-      if not notified then
-        notified = true
-        Snacks.notify.warn({
-          "# API changed",
-          "",
-          "- Snacks finder signature changed.",
-          "```lua",
-          "fun(opts: snacks.picker.Config, ctx: snacks.picker.finder.ctx)",
-          "```",
-        })
-        Snacks.debug.backtrace()
-      end
-      return t[k]
-    end,
-  })
-end
-
 ---@param picker snacks.Picker
 function M:run(picker)
   local default_score = require("snacks.picker.core.matcher").DEFAULT_SCORE
@@ -110,7 +100,7 @@ function M:run(picker)
   self.items = {}
   local yield ---@type fun()
   local ctx = self:ctx(picker)
-  local finder = self._find(picker.opts, ctx, self:deprecated(picker))
+  local finder = self._find(picker.opts, ctx)
   local limit = (picker.opts.live and picker.opts.limit_live or picker.opts.limit) or math.huge
 
   ---@param item snacks.picker.finder.Item
@@ -169,7 +159,7 @@ function M:run(picker)
       picker.matcher.task:resume()
       yield = yield or Async.yielder(YIELD_FIND)
       yield()
-    end, self:deprecated(ctx.async))
+    end)
   end):on("done", function()
     collectgarbage("restart")
     if not self.task:aborted() then

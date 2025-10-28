@@ -13,6 +13,7 @@ M.__index = M
 ---@field filter snacks.picker.Filter
 ---@field async snacks.picker.Async
 ---@field meta table<string, any>
+---@field _opts? snacks.picker.Config
 local Ctx = {}
 Ctx.__index = Ctx
 
@@ -20,7 +21,9 @@ Ctx.__index = Ctx
 ---@param opts T
 ---@return T
 function Ctx:opts(opts)
-  return Snacks.config.merge(vim.deepcopy(self.picker.opts), opts)
+  self._opts = self._opts or vim.deepcopy(self.picker.opts)
+  self._opts = Snacks.config.merge(self._opts, opts)
+  return self._opts
 end
 
 function Ctx:cwd()

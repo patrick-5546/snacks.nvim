@@ -21,6 +21,7 @@ M.USE_QUEUE = true
 function M.proc(opts, ctx)
   ---@cast opts snacks.picker.proc.Config
   assert(opts.cmd, "`opts.cmd` is required")
+
   ---@async
   return function(cb)
     if opts.transform then
@@ -37,7 +38,7 @@ function M.proc(opts, ctx)
     if ctx.picker.opts.debug.proc then
       vim.schedule(function()
         ---@diagnostic disable-next-line: param-type-mismatch
-        Snacks.debug.cmd(Snacks.config.merge(opts, { group = true }))
+        Snacks.debug.cmd(ctx:opts({ group = true }))
       end)
     end
 

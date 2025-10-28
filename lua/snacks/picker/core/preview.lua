@@ -415,10 +415,6 @@ function M:notify(msg, level, opts)
   self:highlight({ lang = "lua" })
 end
 
-    return
-  end
-end
-
 function M:markdown()
   if not self.win:valid() then
     return

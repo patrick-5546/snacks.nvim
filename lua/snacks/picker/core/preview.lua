@@ -24,7 +24,6 @@ M.__index = M
 
 local ns = vim.api.nvim_create_namespace("snacks.picker.preview")
 local ns_loc = vim.api.nvim_create_namespace("snacks.picker.preview.loc")
-local did_diff_setup = false
 
 -- HACK: work-around for buffer-local window options mess. From the docs:
 -- > When editing a buffer that has been edited before, the options from the window
@@ -282,8 +281,8 @@ function M:highlight(opts)
   end
   self:check_big()
   local lang = Snacks.util.get_lang(opts.lang or ft)
-  if lang == "diff" then
-    self:diff()
+  if lang == "markdown" then
+    return self:markdown()
   end
   if not (lang and pcall(vim.treesitter.start, self.win.buf, lang)) and ft then
     vim.bo[self.win.buf].syntax = ft
@@ -384,10 +383,11 @@ function M:is_big()
 end
 
 ---@param lines string[]
-function M:set_lines(lines)
+---@param offset? number
+function M:set_lines(lines, offset)
   lines = vim.split(table.concat(lines, "\n"), "\n", { plain = true })
   vim.bo[self.win.buf].modifiable = true
-  vim.api.nvim_buf_set_lines(self.win.buf, 0, -1, false, lines)
+  vim.api.nvim_buf_set_lines(self.win.buf, offset or 0, -1, false, lines)
   vim.bo[self.win.buf].modifiable = false
 end
 
@@ -415,20 +415,7 @@ function M:notify(msg, level, opts)
   self:highlight({ lang = "lua" })
 end
 
-function M:diff()
-  if did_diff_setup then
     return
   end
-  did_diff_setup = true
-  vim.treesitter.query.set(
-    "diff",
-    "injections",
-    [[; extends
-    (block
-      (new_file (filename) @injection.filename)
-      (hunks
-        (hunk changes: (changes) @injection.content
-            (#set! injection.include-children))))]]
-  )
 end
 return M

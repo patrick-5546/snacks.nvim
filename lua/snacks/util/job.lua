@@ -127,7 +127,7 @@ function Job:on_exit(code)
     self:hide_process_exited()
   end
 
-  self:norm("gg")
+  self:set_cursor()
 
   if not self.killed and code ~= 0 then
     self:error(
@@ -137,15 +137,12 @@ function Job:on_exit(code)
   end
 end
 
----@param cmd string
-function Job:norm(cmd)
+function Job:set_cursor()
   if not self:buf_valid() then
     return
   end
   for _, win in ipairs(vim.fn.win_findbuf(self.buf)) do
-    vim.api.nvim_win_call(win, function()
-      vim.cmd("normal! " .. cmd)
-    end)
+    vim.api.nvim_win_set_cursor(win, { 1, 0 })
   end
 end
 

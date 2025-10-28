@@ -256,63 +256,19 @@ end
 ---@param opts snacks.picker.git.diff.Config
 ---@type snacks.picker.finder
 function M.diff(opts, ctx)
-  local args =
-    M.git("diff", "--no-color", "--no-ext-diff", { args = { "-c", "diff.noprefix=false", "--no-pager" } }, opts)
+  opts = opts or {}
+  local args = M.git("diff", "--no-color", "--no-ext-diff", "--default-prefix", { args = { "--no-pager" } }, opts)
   if opts.base then
     vim.list_extend(args, { "--merge-base", opts.base })
   end
-  local file, line ---@type string?, number?
-  local header, hunk = {}, {} ---@type string[], string[]
-  local header_len = 4
-
-  local cwd = svim.fs.normalize(opts and opts.cwd or uv.cwd() or ".") or nil
-  cwd = Snacks.git.get_root(cwd) or cwd
-
-  local finder = require("snacks.picker.source.proc").proc({
-    opts,
-    { cmd = "git", args = args, cwd = cwd },
-  }, ctx)
-  return function(cb)
-    local function add()
-      if file and line and #hunk > 0 then
-        local diff = table.concat(header, "\n") .. "\n" .. table.concat(hunk, "\n")
-        cb({
-          text = file .. ":" .. line,
-          diff = diff,
-          file = file,
-          cwd = cwd,
-          pos = { line, 0 },
-          preview = { text = diff, ft = "diff", loc = false },
-        })
-      end
-      hunk = {}
-    end
-    finder(function(proc_item)
-      local text = proc_item.text
-      if text:find("diff", 1, true) == 1 then
-        add()
-        file = text:match("^diff .* a/(.*) b/.*$")
-        header = { text }
-        header_len = 4
-      elseif file and #header < header_len then
-        if text:find("^deleted file") then
-          header_len = 5
-        end
-        header[#header + 1] = text
-      elseif text:find("@", 1, true) == 1 then
-        add()
-        -- Hunk header
-        -- @example "@@ -157,20 +157,6 @@ some content"
-        line = tonumber(string.match(text, "@@ %-.*,.* %+(.*),.* @@"))
-        hunk = { text }
-      elseif #hunk > 0 then
-        hunk[#hunk + 1] = text
-      else
-        error("unexpected line: " .. text)
-      end
-    end)
-    add()
-  end
+  return require("snacks.picker.source.diff").diff(
+    ctx:opts({
+      cmd = "git",
+      args = args,
+      cwd = ctx:git_root(),
+    }),
+    ctx
+  )
 end
 
 ---@param opts snacks.picker.git.branches.Config

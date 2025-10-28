@@ -40,7 +40,7 @@ function M.files(opts, ctx)
     table.insert(args, "--recurse-submodules")
   end
   if not opts.cwd then
-    opts.cwd = Snacks.git.get_root() or uv.cwd() or "."
+    opts.cwd = ctx:git_root()
     ctx.picker:set_cwd(opts.cwd)
   end
   local cwd = svim.fs.normalize(opts.cwd) or nil
@@ -85,7 +85,7 @@ function M.grep(opts, ctx)
   vim.list_extend(args, pathspec)
 
   if not opts.cwd then
-    opts.cwd = Snacks.git.get_root() or uv.cwd() or "."
+    opts.cwd = ctx:git_root()
     ctx.picker:set_cwd(opts.cwd)
   end
   local cwd = svim.fs.normalize(opts.cwd) or nil
@@ -224,8 +224,7 @@ function M.status(opts, ctx)
     table.insert(args, "--ignored=matching")
   end
 
-  local cwd = svim.fs.normalize(opts and opts.cwd or uv.cwd() or ".") or nil
-  cwd = Snacks.git.get_root(cwd)
+  local cwd = ctx:git_root()
   local prev ---@type snacks.picker.finder.Item?
   return require("snacks.picker.source.proc").proc(
     ctx:opts({
@@ -278,8 +277,7 @@ function M.branches(opts, ctx)
   if opts.all then
     table.insert(args, "--all")
   end
-  local cwd = svim.fs.normalize(opts and opts.cwd or uv.cwd() or ".") or nil
-  cwd = Snacks.git.get_root(cwd)
+  local cwd = ctx:git_root()
 
   local patterns = {
     -- stylua: ignore start
@@ -325,8 +323,7 @@ end
 ---@type snacks.picker.finder
 function M.stash(opts, ctx)
   local args = M.git("stash", "list", { args = { "--no-pager" } }, opts)
-  local cwd = svim.fs.normalize(opts and opts.cwd or uv.cwd() or ".") or nil
-  cwd = Snacks.git.get_root(cwd)
+  local cwd = ctx:git_root()
 
   return require("snacks.picker.source.proc").proc(
     ctx:opts({

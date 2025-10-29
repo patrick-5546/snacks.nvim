@@ -260,6 +260,9 @@ function M.diff(opts, ctx)
   if opts.base then
     vim.list_extend(args, { "--merge-base", opts.base })
   end
+  if opts.staged then
+    table.insert(args, "--cached")
+  end
   return require("snacks.picker.source.diff").diff(
     ctx:opts({
       cmd = "git",

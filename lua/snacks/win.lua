@@ -908,6 +908,13 @@ function M:fixbuf()
     return
   end
 
+  if vim.api.nvim_win_get_config(self.win).zindex then
+    vim.schedule(function()
+      self:close()
+    end)
+    return
+  end
+
   -- another buffer was opened in this window
   -- find another window to swap with
   local main ---@type number?

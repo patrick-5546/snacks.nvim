@@ -390,6 +390,9 @@ function M.reltime(time)
       return value == 1 and v[3] or v[4]:format(value)
     end
   end
+  if os.date("%Y", time) == os.date("%Y") then
+    return os.date("%b %d", time) ---@type string
+  end
   return os.date("%b %d, %Y", time) ---@type string
 end
 

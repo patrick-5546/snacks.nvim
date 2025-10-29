@@ -366,11 +366,12 @@ function M.set(buf, ns, row, hl)
   end
 end
 
-local badge_cache = {} ---@type table<string, {hl:string, color:string|{fg:string,bg:string}}>
+---@alias snacks.picker.badge.color string|{ fg:string, bg:string }
+local badge_cache = {} ---@type table<string, {hl:string, color:snacks.picker.badge.color}>
 
----@param color string|{ fg:string, bg:string }
+---@param color snacks.picker.badge.color
 local function badge_hl(color)
-  local key = type(color) == "string" and color or (color.fg .. ":" .. color.bg)
+  local key = type(color) == "string" and color or ("%s:%s"):format(color.fg or "", color.bg or "")
   if badge_cache[key] then
     return badge_cache[key].hl
   end
@@ -418,7 +419,7 @@ end
 
 --- Renders a badge
 ---@param text string
----@param color string
+---@param color snacks.picker.badge.color
 function M.badge(text, color)
   local left_sep, right_sep = "", ""
 

@@ -53,6 +53,7 @@ function M.jump(picker, _, action)
   local win = vim.api.nvim_get_current_win()
 
   local current_buf = vim.api.nvim_get_current_buf()
+  local current_tab = vim.api.nvim_get_current_tabpage()
   local current_empty = vim.bo[current_buf].buftype == ""
     and vim.bo[current_buf].filetype == ""
     and vim.api.nvim_buf_line_count(current_buf) == 1
@@ -77,47 +78,52 @@ function M.jump(picker, _, action)
   end
 
   local cmd = edit_cmd[action.cmd] or edit_cmd.edit
+  local is_drop = cmd:find("drop") ~= nil
 
-  if cmd:find("drop") then
-    local drop = {} ---@type string[]
-    for _, item in ipairs(items) do
-      local path = item.buf and vim.api.nvim_buf_get_name(item.buf) or Snacks.picker.util.path(item)
-      if not path then
-        Snacks.notify.error("Either item.buf or item.file is required", { title = "Snacks Picker" })
-        return
-      end
-      drop[#drop + 1] = vim.fn.fnameescape(path)
+  -- load the buffers
+  local first_buf ---@type number
+  for _, item in ipairs(items) do
+    local buf = item.buf ---@type number
+    if not buf then
+      local path = assert(Snacks.picker.util.path(item), "Either item.buf or item.file is required")
+      buf = vim.fn.bufadd(path)
     end
-    vim.cmd(cmd .. " " .. table.concat(drop, " "))
-    win = vim.api.nvim_get_current_win()
-  else
-    for i, item in ipairs(items) do
-      -- load the buffer
-      local buf = item.buf ---@type number
-      if not buf then
-        local path = assert(Snacks.picker.util.path(item), "Either item.buf or item.file is required")
-        buf = vim.fn.bufadd(path)
-      end
-      vim.bo[buf].buflisted = true
+    vim.bo[buf].buflisted = true
+    first_buf = first_buf or buf
+  end
 
-      -- use an existing window if possible
-      if cmd == "buffer" and #items == 1 and picker.opts.jump.reuse_win and buf ~= current_buf then
-        for _, w in ipairs(vim.fn.win_findbuf(buf)) do
-          if vim.api.nvim_win_get_config(w).relative == "" then
-            win = w
-            vim.api.nvim_set_current_win(win)
-            break
-          end
-        end
-      end
-
-      -- open the first buffer
-      if i == 1 then
-        vim.cmd(("%s %d"):format(cmd, buf))
-        win = vim.api.nvim_get_current_win()
+  -- find an existing window showing the first buffer in the current tab
+  ---@param in_tab? boolean
+  local function find_win(in_tab)
+    if first_buf == current_buf then
+      return true
+    end
+    for _, w in ipairs(vim.fn.win_findbuf(first_buf)) do
+      if
+        vim.api.nvim_win_get_config(w).relative == ""
+        and (in_tab ~= true or vim.api.nvim_win_get_tabpage(w) == current_tab)
+      then
+        win = w
+        vim.api.nvim_set_current_win(win)
+        return true
       end
     end
   end
+
+  -- use an existing window if reuse_win or drop
+  if is_drop then
+    if find_win() or cmd == "drop" then
+      cmd = "buffer!"
+    else
+      cmd = "tab sbuffer"
+    end
+  elseif cmd == "buffer!" and #items == 1 and picker.opts.jump.reuse_win then
+    find_win(true)
+  end
+
+  -- open the first buffer
+  vim.cmd(("%s %d"):format(cmd, first_buf))
+  win = vim.api.nvim_get_current_win()
 
   -- set the cursor
   local item = items[1]

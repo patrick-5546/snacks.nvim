@@ -155,6 +155,7 @@ function M.open(opts)
       opts.name:gsub("|", " "),
       opts.filekey.cwd and svim.fs.normalize(assert(uv.cwd())) or "",
       branch,
+      opts.filekey.custom ~= "" and opts.filekey.custom or nil,
     }
 
     vim.fn.mkdir(opts.root, "p")
@@ -183,7 +184,9 @@ function M.open(opts)
   local buf = vim.fn.bufadd(file)
 
   local closed = false
+  local zindex = opts.win.zindex or 20
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    zindex = math.max(zindex, (vim.api.nvim_win_get_config(win).zindex or 0) + 1)
     if vim.api.nvim_win_get_buf(win) == buf then
       vim.schedule(function()
         vim.api.nvim_win_call(win, function()
@@ -193,6 +196,7 @@ function M.open(opts)
       closed = true
     end
   end
+  opts.win.zindex = zindex
   if closed then
     return
   end

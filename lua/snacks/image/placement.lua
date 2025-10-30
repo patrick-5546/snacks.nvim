@@ -272,7 +272,6 @@ function M:render_grid(loc)
       end
     end
   end
-  -- can_overlay = false
 
   if height == 1 and #lines == 1 then
     -- render inline
@@ -317,6 +316,17 @@ function M:render_grid(loc)
           virt_text = { { table.remove(img, 1), hl } },
           virt_text_hide = false,
           virt_text_win_col = offset,
+        }
+      end
+      -- conceal remaining lines if any
+      local last = extmarks[#extmarks]
+      if last and #img == 0 and (last.row < range[3] - 1) and vim.fn.has("nvim-0.11.4") == 1 then
+        extmarks[#extmarks + 1] = {
+          row = last.row + 1,
+          end_row = range[3] - 1,
+          col = 0,
+          conceal_lines = "",
+          virt_text_hide = false,
         }
       end
     end

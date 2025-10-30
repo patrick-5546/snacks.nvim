@@ -3,6 +3,8 @@ local M = {}
 
 local uv = vim.uv or vim.loop
 
+local str_byteindex_new = pcall(vim.str_byteindex, "aa", "utf-8", 1)
+
 ---@param item snacks.picker.Item
 ---@return string?
 function M.path(item)
@@ -324,13 +326,17 @@ end
 ---@param s string
 ---@param index number
 ---@param encoding string
-function M.str_byteindex(s, index, encoding)
-  if vim.lsp.util._str_byteindex_enc then
-    return vim.lsp.util._str_byteindex_enc(s, index, encoding)
-  elseif vim._str_byteindex then
-    return vim._str_byteindex(s, index, encoding == "utf-16")
+---@param strict_indexing? boolean
+function M.str_byteindex(s, index, encoding, strict_indexing)
+  if str_byteindex_new then
+    return vim.str_byteindex(s, encoding, index, strict_indexing)
+  elseif vim.str_byteindex then
+    ---@diagnostic disable-next-line: param-type-mismatch
+    return vim.str_byteindex(s, index, encoding == "utf-16")
+  elseif vim.lsp.util._str_byteindex then
+    return vim.lsp.util._str_byteindex(s, index, encoding)
   end
-  return vim.str_byteindex(s, index, encoding == "utf-16")
+  error("No str_byteindex function available")
 end
 
 --- Resolves the location of an item to byte positions

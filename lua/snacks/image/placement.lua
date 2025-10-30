@@ -200,6 +200,27 @@ function M:del()
   end
 end
 
+---@param row number
+---@param col number
+function M:is_concealed(row, col)
+  local captures = vim.treesitter.get_captures_at_pos(self.buf, row, col)
+  for _, cap in ipairs(captures) do
+    if vim.tbl_get(cap, "metadata", "conceal_lines") ~= nil then
+      return true
+    end
+  end
+  return false
+end
+
+---@param row number
+function M:find_line(row)
+  local line_count = vim.api.nvim_buf_line_count(self.buf)
+  while row < line_count and self:is_concealed(row, 0) do
+    row = row + 1
+  end
+  return row
+end
+
 --- Renders the unicode placeholder grid in the buffer
 ---@param loc snacks.image.Loc
 function M:render_grid(loc)
@@ -271,19 +292,24 @@ function M:render_grid(loc)
   elseif can_overlay then
     if conceal then
       -- conceal and overlay on the first line
-      extmarks[#extmarks + 1] = {
-        row = range[1] - 1,
-        col = range[2],
-        end_row = range[3] - 1,
-        end_col = range[4],
-        conceal = conceal,
-        virt_text_pos = "overlay",
-        virt_text = { { table.remove(img, 1), hl } },
-        virt_text_hide = false,
-        virt_text_win_col = offset,
-      }
+      if not self:is_concealed(range[1] - 1, range[2]) then
+        extmarks[#extmarks + 1] = {
+          row = range[1] - 1,
+          col = range[2],
+          end_row = range[3] - 1,
+          end_col = range[4],
+          conceal = conceal,
+          virt_text_pos = "overlay",
+          virt_text = { { table.remove(img, 1), hl } },
+          virt_text_hide = false,
+          virt_text_win_col = offset,
+        }
+      end
       -- overlay over the other lines
       for i = 1, math.min(#img, #lines - 1) do
+        if self:is_concealed(range[1] - 1 + i, 0) then
+          break
+        end
         extmarks[#extmarks + 1] = {
           row = range[1] - 1 + i,
           col = 0,
@@ -296,10 +322,12 @@ function M:render_grid(loc)
     end
     if #img > 0 then
       -- add additional virtual lines if there are more lines to render
+      local row = self:find_line(range[3] - 1)
       local padding = string.rep(" ", offset)
       extmarks[#extmarks + 1] = {
-        row = range[3] - 1,
+        row = row,
         col = 0,
+        virt_lines_above = row ~= range[3] - 1,
         ---@param l string
         virt_lines = vim.tbl_map(function(l)
           return { { padding }, { l, hl } }

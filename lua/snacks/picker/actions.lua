@@ -344,15 +344,21 @@ function M.git_stage(picker)
   local items = picker:selected({ fallback = true })
   local done = 0
   for _, item in ipairs(items) do
+    local opts = { cwd = item.cwd } ---@type snacks.picker.util.cmd.Opts
+
     local cmd = item.status:sub(2) == " " and { "git", "restore", "--staged", item.file } or { "git", "add", item.file }
-    Snacks.picker.util.cmd(cmd, function(data, code)
+    if item.diff then
+      opts.input = item.diff
+      cmd = { "git", "apply", "--cached", item.staged and "--reverse" or nil }
+    end
+    Snacks.picker.util.cmd(cmd, function()
       done = done + 1
       if done == #items then
         picker.list:set_selected()
         picker.list:set_target()
         picker:find()
       end
-    end, { cwd = item.cwd })
+    end, opts)
   end
 end
 
@@ -370,14 +376,22 @@ function M.git_restore(picker)
   local msg = #items == 1 and ("Discard changes to `%s`?"):format(files[1])
     or ("Discard changes to %d files?"):format(#items)
 
-  Snacks.picker.select({ "No", "Yes" }, { prompt = msg }, function(_, idx)
-    if not idx and idx == 2 then
-      return
-    end
+  Snacks.picker.util.confirm(msg, function()
     local done = 0
     for _, item in ipairs(items) do
       local cmd = { "git", "restore", item.file }
-      Snacks.picker.util.cmd(cmd, function(data, code)
+      local opts = { cwd = item.cwd }
+
+      if item.diff then
+        opts.input = item.diff
+        if item.staged then
+          cmd = { "git", "apply", "--reverse", "--cached" }
+        else
+          cmd = { "git", "apply", "--reverse" }
+        end
+      end
+
+      Snacks.picker.util.cmd(cmd, function()
         done = done + 1
         if done == #items then
           vim.schedule(function()
@@ -385,9 +399,10 @@ function M.git_restore(picker)
             picker.list:set_target()
             picker:find()
             vim.cmd.startinsert()
+            vim.cmd.checktime()
           end)
         end
-      end, { cwd = item.cwd })
+      end, opts)
     end
   end)
 end

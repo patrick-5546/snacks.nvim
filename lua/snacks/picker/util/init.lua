@@ -83,10 +83,12 @@ function M.confirm(prompt, fn)
   end)
 end
 
+---@alias snacks.picker.util.cmd.Opts {env?: table<string, string>, cwd?: string, input?: string}
 ---@param cmd string|string[]
 ---@param cb fun(output: string[], code: number)
----@param opts? {env?: table<string, string>, cwd?: string}
+---@param opts? snacks.picker.util.cmd.Opts
 function M.cmd(cmd, cb, opts)
+  opts = opts or {}
   local output = {} ---@type string[]
   local id = vim.fn.jobstart(
     cmd,
@@ -114,6 +116,9 @@ function M.cmd(cmd, cb, opts)
   )
   if id <= 0 then
     Snacks.notify.error(("Failed to start job `%s`"):format(cmd))
+  elseif opts.input then
+    vim.fn.chansend(id, opts.input .. "\n")
+    vim.fn.chanclose(id, "stdin")
   end
   return id > 0 and id or nil
 end

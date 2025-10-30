@@ -263,7 +263,10 @@ function M.diff(opts, ctx)
   if opts.staged then
     table.insert(args, "--cached")
   end
-  return require("snacks.picker.source.diff").diff(
+
+  local Diff = require("snacks.picker.source.diff")
+  local finders = {} ---@type snacks.picker.finder.result[]
+  finders[#finders + 1] = Diff.diff(
     ctx:opts({
       cmd = "git",
       args = args,
@@ -271,6 +274,39 @@ function M.diff(opts, ctx)
     }),
     ctx
   )
+  if opts.staged == nil and opts.base == nil then
+    finders[#finders + 1] = Diff.diff(
+      ctx:opts({
+        cmd = "git",
+        args = vim.list_extend(vim.deepcopy(args), { "--cached" }),
+        cwd = ctx:git_root(),
+      }),
+      ctx
+    )
+  end
+  return function(cb)
+    local items = {} ---@type snacks.picker.finder.Item[]
+    for f, finder in ipairs(finders) do
+      finder(function(item)
+        item.staged = opts.staged or f == 2
+        if item.staged then
+          item.status = "M "
+        else
+          item.status = " M"
+        end
+        items[#items + 1] = item
+      end)
+    end
+    table.sort(items, function(a, b)
+      if a.file ~= b.file then
+        return a.file < b.file
+      end
+      return a.pos[1] < b.pos[1]
+    end)
+    for _, item in ipairs(items) do
+      cb(item)
+    end
+  end
 end
 
 ---@param opts snacks.picker.git.branches.Config

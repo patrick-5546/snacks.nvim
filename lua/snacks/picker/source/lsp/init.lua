@@ -186,6 +186,20 @@ function R:request(buf, method, params, cb)
       local status, request_id = client:request(method, p, function(err, result)
         done = true
         if not err and result and not self.async:aborted() then
+          if not self.async:running() then
+            Snacks.debug.inspect({
+              error = "LSP request callback yielded after done.",
+              method = method,
+              requests = vim.deepcopy(self.requests),
+              pending = self.pending,
+              client_id = client.id,
+              client_name = client.name,
+              ---@param c vim.lsp.Client
+              clients = vim.tbl_map(function(c)
+                return { id = c.id, name = c.name }
+              end, clients),
+            })
+          end
           cb(client, result, p)
         end
       end)

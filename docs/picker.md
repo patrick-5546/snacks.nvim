@@ -1134,8 +1134,17 @@ Neovim commands
 {
   group = false,
   finder = "git_diff",
-  format = "file",
+  format = "git_status",
   preview = "diff",
+  matcher = { sort_empty = true },
+  win = {
+    input = {
+      keys = {
+        ["<Tab>"] = { "git_stage", mode = { "n", "i" } },
+        ["<c-r>"] = { "git_restore", mode = { "n", "i" } },
+      },
+    },
+  },
 }
 ```
 

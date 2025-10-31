@@ -18,7 +18,7 @@ local M = {}
 
 ---@enum (key) snacks.picker.EditCmd
 local edit_cmd = {
-  edit = "buffer!",
+  edit = "buffer",
   split = "sbuffer",
   vsplit = "vert sbuffer",
   tab = "tab sbuffer",
@@ -113,11 +113,11 @@ function M.jump(picker, _, action)
   -- use an existing window if reuse_win or drop
   if is_drop then
     if find_win() or cmd == "drop" then
-      cmd = "buffer!"
+      cmd = "buffer"
     else
       cmd = "tab sbuffer"
     end
-  elseif cmd == "buffer!" and #items == 1 and picker.opts.jump.reuse_win then
+  elseif cmd == "buffer" and #items == 1 and picker.opts.jump.reuse_win then
     find_win(true)
   end
 

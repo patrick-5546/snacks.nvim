@@ -245,6 +245,9 @@ function M:init_layout(layout)
       preview = self.preview.win,
     },
     hidden = layout.hidden,
+    on_close = function()
+      self:close()
+    end,
     on_update = function()
       self.preview:refresh(self)
       self.input:update()
@@ -365,6 +368,7 @@ function M:set_layout(layout)
     )
   end
   self.list.reverse = layout.reverse
+  self.layout.opts.on_close = nil -- prevent closing the picker when changing layout
   self.layout:close({ wins = false })
   self:init_layout(layout)
   self.layout:show()

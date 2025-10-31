@@ -33,6 +33,7 @@ M.meta = {
 ---@field hidden? string[] list of windows that will be excluded from the layout (but can be toggled)
 ---@field on_update? fun(layout: snacks.layout)
 ---@field on_update_pre? fun(layout: snacks.layout)
+---@field on_close? fun(layout: snacks.layout)
 local defaults = {
   layout = {
     width = 0.6,
@@ -523,6 +524,9 @@ function M:close(opts)
     win:destroy()
   end
   vim.schedule(function()
+    if self.opts.on_close then
+      self.opts.on_close(self)
+    end
     self.opts = nil
     self.root = nil
     self.wins = nil

@@ -146,7 +146,7 @@ M.props = {
         end
         if name and status then
           status = Snacks.picker.util.title(status:lower())
-          workflows[check.workflowName .. ":" .. check.name] = status
+          workflows[name] = status
         end
       end
       local stats = {} ---@type table<string, number>

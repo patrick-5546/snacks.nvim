@@ -15,7 +15,7 @@ A collection of small QoL plugins for Neovim.
 | [debug](https://github.com/folke/snacks.nvim/blob/main/docs/debug.md) | Pretty inspect & backtraces for debugging |  |
 | [dim](https://github.com/folke/snacks.nvim/blob/main/docs/dim.md) | Focus on the active scope by dimming the rest |  |
 | [explorer](https://github.com/folke/snacks.nvim/blob/main/docs/explorer.md) | A file explorer (picker in disguise) | ‼️ |
-| [gh](https://github.com/folke/snacks.nvim/blob/main/docs/gh.md) | GitHub CLI integration | ‼️ |
+| [gh](https://github.com/folke/snacks.nvim/blob/main/docs/gh.md) | GitHub CLI integration |  |
 | [git](https://github.com/folke/snacks.nvim/blob/main/docs/git.md) | Git utilities |  |
 | [gitbrowse](https://github.com/folke/snacks.nvim/blob/main/docs/gitbrowse.md) | Open the current file, branch, commit, or repo in a browser (e.g. GitHub, GitLab, Bitbucket) |  |
 | [image](https://github.com/folke/snacks.nvim/blob/main/docs/image.md) | Image viewer using Kitty Graphics Protocol, supported by `kitty`, `wezterm` and `ghostty` | ‼️ |

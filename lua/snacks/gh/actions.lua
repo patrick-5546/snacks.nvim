@@ -118,6 +118,9 @@ M.actions.gh_actions = {
           end
           return a.desc < b.desc
         end)
+        for i, it in ipairs(items) do
+          it.text = ("%d. %s"):format(i, it.text)
+        end
         return items
       end,
       format = "gh_format_action",

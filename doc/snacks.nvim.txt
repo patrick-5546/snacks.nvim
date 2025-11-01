@@ -42,7 +42,7 @@ FEATURES                                    *snacks.nvim-snacks.nvim-features*
 
   gh               GitHubCLI integration                 
 
-  git              Gitutilities                          
+  git              Git utilities                         
 
   gitbrowse        Open the current file, branch,        
                    commit, or repo in a browser          

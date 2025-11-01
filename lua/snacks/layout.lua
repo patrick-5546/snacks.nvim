@@ -52,7 +52,9 @@ function M.new(opts)
 
   local zindex = self.opts.layout.zindex or 50
   for _, win in ipairs(vim.api.nvim_list_wins()) do
-    zindex = math.max(zindex, (vim.api.nvim_win_get_config(win).zindex or 0) + 1)
+    if vim.w[win].snacks_win or vim.w[win].snacks_layout then
+      zindex = math.max(zindex, (vim.api.nvim_win_get_config(win).zindex or 0) + 1)
+    end
   end
   self.opts.layout.zindex = zindex + 2
 

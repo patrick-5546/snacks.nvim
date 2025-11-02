@@ -228,7 +228,7 @@ function M.request(cb, opts)
     cb(proc, data and data:find("%S") and proc:json() or nil)
   end, {
     args = args,
-    input = opts.input,
+    input = opts.input and vim.json.encode(opts.input) or nil,
     on_error = opts.on_error,
   })
 end
@@ -417,6 +417,7 @@ function M.comments(item, cb)
                 comments(first: 50) {
                   nodes {
                     id
+                    databaseId
                     body
                     path
                     diffHunk
@@ -427,7 +428,7 @@ function M.comments(item, cb)
                     createdAt
                     subjectType
                     author { login }
-                    replyTo { id }
+                    replyTo { id databaseId }
                     reactionGroups {
                       content
                       users { totalCount }
@@ -439,6 +440,7 @@ function M.comments(item, cb)
             comments(first: 100) {
               nodes {
                 id
+                databaseId
                 body
                 author { login }
                 authorAssociation

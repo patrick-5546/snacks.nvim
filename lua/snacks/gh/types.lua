@@ -30,7 +30,7 @@
 ---@field params? table<string, string|number|boolean> typed fields (--field)
 ---@field header? table<string, string|number|boolean>
 ---@field jq? string
----@field input? string
+---@field input? any
 ---@field method? "GET" | "POST" | "PATCH" | "PUT" | "DELETE"
 ---@field paginate? boolean
 ---@field silent? boolean
@@ -138,6 +138,7 @@
 
 ---@class snacks.gh.Comment
 ---@field id string
+---@field databaseId number
 ---@field url string
 ---@field author { login: string }
 ---@field authorAssociation? string
@@ -149,7 +150,7 @@
 ---@field createdAt string
 ---@field reactionGroups? snacks.gh.Reaction[]
 ---@field created? number
----@field replyTo? {id: string}
+---@field replyTo? {id: string, databaseId: number}
 ---@field path? string
 ---@field diffHunk? string
 ---@field line? number

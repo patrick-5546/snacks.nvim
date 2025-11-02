@@ -6,6 +6,7 @@ local M = {}
 ---@class snacks.gh.action.ctx
 ---@field items snacks.picker.gh.Item[]
 ---@field picker? snacks.Picker
+---@field main? number
 ---@field action? snacks.picker.Action
 
 ---@class snacks.gh.cli.Action.ctx
@@ -79,6 +80,7 @@ M.actions.gh_actions = {
     if ctx.action and ctx.action.cmd then
       return Snacks.picker.actions.jump(ctx.picker, item, ctx.action)
     end
+    ctx.main = ctx.main or ctx.picker and ctx.picker.main or nil
     local actions = M.get_actions(item)
     actions.gh_actions = nil -- remove this action
     actions.gh_perform_action = nil -- remove this action
@@ -103,6 +105,7 @@ M.actions.gh_actions = {
         if ctx.picker then
           ctx.picker:focus()
         end
+        ctx.main = ctx.main or picker and picker.main or nil
         it.action.action(item, ctx)
         picker:close()
       end,
@@ -230,6 +233,35 @@ M.actions.gh_yank = {
     local value = table.concat(urls, "\n")
     vim.fn.setreg(vim.v.register or "+", value, "l")
     Snacks.notify.info("Yanked " .. #urls .. " URL(s)")
+  end,
+}
+
+M.actions.gh_comment = {
+  desc = "Comment on {type} #{number}",
+  icon = " ",
+  action = function(item, ctx)
+    local win = ctx.main or vim.api.nvim_get_current_win()
+    local buf = vim.api.nvim_win_get_buf(win)
+
+    local action = vim.deepcopy(M.cli_actions.gh_comment)
+    if item.uri == vim.api.nvim_buf_get_name(buf) then
+      local lino = vim.api.nvim_win_get_cursor(win)[1]
+      ---@type {line:number, id:number}[]
+      local comments = vim.b[buf].snacks_gh_comments or {}
+      for _, c in ipairs(comments) do
+        if c.line == lino then
+          action.title = "Reply to comment on {type} #{number}"
+          action.api = {
+            endpoint = "/repos/{repo}/pulls/{number}/comments",
+            input = {
+              in_reply_to = c.id,
+            },
+          }
+          break
+        end
+      end
+    end
+    M.run(item, action, ctx)
   end,
 }
 
@@ -570,7 +602,6 @@ function M._run(ctx, force)
     Api.request(
       cb,
       Snacks.config.merge(ctx.opts.api or {}, {
-        input = ctx.input,
         args = ctx.args,
         on_error = function()
           spinner:stop()
@@ -655,10 +686,20 @@ function M.submit(ctx)
 
   if body:find("%S") then
     if edit == "body-file" then
-      vim.list_extend(ctx.args, { "--body-file", "-" })
-      ctx.input = body
+      if ctx.opts.api then
+        ctx.opts.api.input = ctx.opts.api.input or {}
+        ctx.opts.api.input.body = body
+      else
+        ctx.input = body
+        vim.list_extend(ctx.args, { "--body-file", "-" })
+      end
     else
-      vim.list_extend(ctx.args, { "--" .. edit, body })
+      if ctx.opts.api then
+        ctx.opts.api.fields = ctx.opts.api.fields or {}
+        ctx.opts.api.fields[edit] = body
+      else
+        vim.list_extend(ctx.args, { "--" .. edit, body })
+      end
     end
   end
 

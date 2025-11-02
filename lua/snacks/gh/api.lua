@@ -56,6 +56,7 @@ local config = {
       "headRefName",
       "mergedAt",
       "statusCheckRollup",
+      "reviews",
     },
     ---@param item snacks.picker.gh.Item
     transform = function(item)
@@ -74,6 +75,42 @@ end
 local function cache_set(item)
   cache[item.uri] = item
   return item
+end
+
+---@generic T
+---@param fn fun(cb:fun(proc:snacks.spawn.Proc, data?:any), opts:T): snacks.spawn.Proc
+---@return fun(opts:T): any?
+local function wrap_sync(fn)
+  ---@async
+  return function(opts)
+    local ret ---@type any
+    fn(function(_, data)
+      ret = data
+    end, opts):wait()
+    return ret
+  end
+end
+
+--- Cleanup GraphQL internal nodes and reaction groups
+---@param ret table<string, any>
+local function clean_graphql(ret)
+  for k, v in pairs(ret) do
+    if type(v) == "table" then
+      clean_graphql(v)
+    end
+    if k == "reactionGroups" and type(v) == "table" then
+      ---@param r snacks.gh.Reaction
+      ret[k] = vim.tbl_filter(function(r)
+        return r.users and r.users.totalCount and r.users.totalCount > 0
+      end, v)
+      ret[k] = #ret[k] > 0 and ret[k] or nil
+    elseif type(v) == "table" and type(v.nodes) == "table" and vim.tbl_count(v) == 1 then
+      ret[k] = v.nodes
+    elseif v == vim.NIL then
+      ret[k] = nil
+    end
+  end
+  return ret
 end
 
 ---@param what "issue" | "pr"
@@ -153,16 +190,7 @@ function M.cmd(cb, opts)
   })
   return ret
 end
-
----@param opts snacks.gh.api.Cmd
----@async
-function M.cmd_sync(opts)
-  local ret ---@type any
-  M.cmd(function(_, data)
-    ret = data
-  end, opts):wait()
-  return ret
-end
+M.cmd_sync = wrap_sync(M.cmd)
 
 ---@param cb fun(proc: snacks.spawn.Proc, data?: unknown)
 ---@param opts snacks.gh.api.Fetch
@@ -176,16 +204,7 @@ function M.fetch(cb, opts)
     repo = opts.repo,
   })
 end
-
----@param opts snacks.gh.api.Fetch
----@async
-function M.fetch_sync(opts)
-  local ret ---@type any
-  M.fetch(function(_, data)
-    ret = data
-  end, opts):wait()
-  return ret
-end
+M.fetch_sync = wrap_sync(M.fetch)
 
 ---@param cb fun(proc: snacks.spawn.Proc, data?: table)
 ---@param opts snacks.gh.api.Api
@@ -193,16 +212,16 @@ function M.request(cb, opts)
   local args = { "api", opts.endpoint }
   set_options(args, config.api.options or {}, opts)
   if opts.input then
-    args[#args + 1] = "--input"
-    args[#args + 1] = "-"
+    vim.list_extend(args, { "--input", "-" })
   end
   for k, v in pairs(opts.fields or {}) do
-    args[#args + 1] = "--raw-field"
-    args[#args + 1] = string.format("%s=%s", k, tostring(v))
+    vim.list_extend(args, { "--raw-field", ("%s=%s"):format(k, tostring(v)) })
+  end
+  for k, v in pairs(opts.params or {}) do
+    vim.list_extend(args, { "--field", ("%s=%s"):format(k, tostring(v)) })
   end
   for k, v in pairs(opts.header or {}) do
-    args[#args + 1] = "--header"
-    args[#args + 1] = string.format("%s: %s", k, tostring(v))
+    vim.list_extend(args, { "--header", ("%s:%s"):format(k, tostring(v)) })
   end
   return M.cmd(function(proc, data)
     cb(proc, data and data:find("%S") and proc:json() or nil)
@@ -212,16 +231,43 @@ function M.request(cb, opts)
     on_error = opts.on_error,
   })
 end
+M.request_sync = wrap_sync(M.request)
 
----@param opts snacks.gh.api.Api
----@async
-function M.request_sync(opts)
-  local ret ---@type any
-  M.request(function(_, data)
-    ret = data
-  end, opts):wait()
-  return ret
+---@param cb fun(proc: snacks.spawn.Proc, data?: table)
+---@param opts snacks.gh.api.GraphQL
+function M.graphql(cb, opts)
+  opts = Snacks.config.merge(vim.deepcopy(opts), {
+    endpoint = "graphql",
+    fields = {
+      query = opts.query,
+    },
+  })
+  return M.request(function(proc, data)
+    if not data then
+      return
+    end
+    if data.errors then
+      local msgs = {} ---@type string[]
+      for _, err in ipairs(data.errors) do
+        msgs[#msgs + 1] = err.message
+      end
+      vim.schedule(function()
+        Snacks.debug.cmd({
+          header = "GH GraphQL Error",
+          cmd = { "gh", "api", "graphql" },
+          footer = table.concat(msgs, "\n"),
+          level = vim.log.levels.ERROR,
+        })
+        if opts.on_error then
+          opts.on_error(proc, table.concat(msgs, "\n"))
+        end
+      end)
+      return
+    end
+    cb(proc, clean_graphql(data.data))
+  end, opts)
 end
+M.graphql_sync = wrap_sync(M.graphql)
 
 ---@async
 function M.user()
@@ -281,14 +327,35 @@ function M.view(item, cb, opts)
   end
 
   local args = { item.type, "view", tostring(item.number) }
-  ---@param data? snacks.gh.Item
-  return M.fetch(function(_, data)
-    if not data then
+  local need_reviews = item.type == "pr" and vim.tbl_contains(todo, "comments")
+  local it ---@type snacks.gh.Item?
+  local pending = need_reviews and 2 or 1
+
+  ---@param data? snacks.gh.Item|{}
+  local function handler(data)
+    it = data and vim.tbl_extend("force", it or {}, data or {}) or it
+    pending = pending - 1
+    if pending > 0 then
+      return
+    end
+    if not it then
       return cb()
     end
     item = Item.new(item, api_opts)
-    item:update(data, todo)
+    item:update(it, todo)
     cb(cache_set(item), true)
+  end
+
+  if need_reviews then
+    todo = vim.tbl_filter(function(f)
+      return f ~= "comments" and f ~= "reviews"
+    end, todo)
+    M.comments(item, handler)
+  end
+
+  ---@param data? snacks.gh.Item
+  return M.fetch(function(_, data)
+    handler(data)
   end, {
     args = args,
     fields = todo,
@@ -312,6 +379,80 @@ function M.refresh(item)
       end
     end
   end
+end
+
+---@param cb fun(data?: {comments: snacks.gh.Comment[], reviews: snacks.gh.Review[]})
+---@param item snacks.gh.api.View
+function M.comments(item, cb)
+  local owner, name = item.repo:match("^(.-)/(.-)$")
+  return M.graphql(function(_, data)
+    if not data then
+      return cb()
+    end
+    cb(data.repository.pullRequest)
+  end, {
+    params = {
+      owner = owner,
+      name = name,
+      number = item.number,
+    },
+    query = [[
+      query($owner: String!, $name: String!, $number: Int!) {
+        repository(owner: $owner, name: $name) {
+          pullRequest(number: $number) {
+            reviews(first: 100) {
+              nodes {
+                id
+                author { login }
+                authorAssociation
+                body
+                state
+                commit { oid }
+                submittedAt
+                reactionGroups {
+                  content
+                  users { totalCount }
+                }
+                comments(first: 50) {
+                  nodes {
+                    id
+                    body
+                    path
+                    diffHunk
+                    line
+                    startLine
+                    originalLine
+                    originalStartLine
+                    createdAt
+                    subjectType
+                    author { login }
+                    replyTo { id }
+                    reactionGroups {
+                      content
+                      users { totalCount }
+                    }
+                  }
+                }
+              }
+            }
+            comments(first: 100) {
+              nodes {
+                id
+                body
+                author { login }
+                authorAssociation
+                createdAt
+                reactionGroups {
+                  content
+                  users { totalCount }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]],
+  })
 end
 
 return M

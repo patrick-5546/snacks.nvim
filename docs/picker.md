@@ -1089,6 +1089,28 @@ Neovim commands
 }
 ```
 
+### `gh_actions`
+
+```vim
+:lua Snacks.picker.gh_actions(opts?)
+```
+
+```lua
+---@class snacks.picker.gh.actions.Config: snacks.picker.Config
+---@field number number issue or PR number
+---@field repo string GitHub repository (owner/repo). Defaults to current git repo
+---@field type "issue" | "pr"
+---@field item? snacks.picker.gh.Item
+{
+  layout = { preset = "select", layout = { max_width = 50 } },
+  title = "  Actions",
+  main = { current = true },
+  finder = "gh_get_actions",
+  format = "gh_format_action",
+  confirm = "gh_perform_action",
+}
+```
+
 ### `gh_diff`
 
 ```vim

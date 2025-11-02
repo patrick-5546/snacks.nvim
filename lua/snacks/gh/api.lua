@@ -359,7 +359,7 @@ function M.view(item, cb, opts)
   end, {
     args = args,
     fields = todo,
-    repo = api_opts.repo,
+    repo = item.repo or api_opts.repo,
   })
 end
 

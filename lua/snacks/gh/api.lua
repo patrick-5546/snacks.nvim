@@ -6,6 +6,7 @@ local M = {}
 
 ---@type table<string, snacks.picker.gh.Item>
 local cache = setmetatable({}, { __mode = "v" })
+local pr_cache = {} ---@type table<string, snacks.picker.gh.Item>
 
 ---@type table<string, snacks.gh.api.Config|{}>
 local config = {
@@ -304,10 +305,10 @@ function M.list(what, cb, opts)
   })
 end
 
----@param item snacks.gh.api.View
 ---@param cb fun(item?: snacks.picker.gh.Item, updated?: boolean)
+---@param item snacks.gh.api.View
 ---@param opts? { fields?: string[], force?: boolean }
-function M.view(item, cb, opts)
+function M.view(cb, item, opts)
   opts = opts or {}
   local api_opts = get_opts(item.type, "view")
   if opts.fields then
@@ -452,6 +453,85 @@ function M.comments(item, cb)
         }
       }
     ]],
+  })
+end
+
+function M.get_branch()
+  local branch = vim.fn.system({ "git", "branch", "--show-current" }):gsub("\n", "")
+
+  -- Get all config in one call
+  local git_config = vim.fn
+    .system({
+      "git",
+      "config",
+      "--get-regexp",
+      ("^(branch\\.%s\\.|remote\\.)"):format(branch),
+    })
+    :gsub("\n$", "")
+
+  local cfg = {} ---@type table<string, string>
+  for _, line in ipairs(vim.split(git_config, "\n")) do
+    local key, value = line:match("^([^%s]+)%s+(.+)$")
+    if key then
+      cfg[key] = value
+    end
+  end
+
+  -- Extract values
+  local remote = cfg[("branch.%s.remote"):format(branch)] or ""
+  local merge = cfg[("branch.%s.merge"):format(branch)] or ""
+  local origin_url = cfg["remote.origin.url"] or ""
+
+  -- Get fork URL (either named remote or direct URL)
+  local url = (remote:match("^https://") or remote:match("^git@")) and remote
+    or cfg[("remote.%s.url"):format(remote)]
+    or remote
+
+  -- Parse author from fork URL
+  local author ---@type string?
+  if url ~= "" then
+    ---@type string?
+    local owner_repo = url:match("github%.com[:/](.+/.+)%.git") or url:match("github%.com[:/](.+/.+)$")
+    author = owner_repo and owner_repo:match("^([^/]+)/") or nil
+  end
+
+  -- Parse repo from origin
+  local repo = origin_url:match("github%.com[:/](.+/.+)%.git") or origin_url:match("github%.com[:/](.+/.+)$")
+
+  -- Parse head from merge ref
+  local head = merge:match("^refs/heads/(.+)$") or branch
+
+  -- Get base branch (default branch from origin)
+  local base = vim.fn.system({ "git", "symbolic-ref", "refs/remotes/origin/HEAD" }):gsub("\n", "")
+  base = base:match("refs/remotes/origin/(.+)") or "main"
+
+  ---@type snacks.gh.api.Branch
+  return {
+    url = url,
+    author = author,
+    repo = repo,
+    branch = branch,
+    head = head,
+    base = base,
+  }
+end
+
+---@param cb fun(item?: snacks.picker.gh.Item)
+function M.current_pr(cb)
+  local branch = M.get_branch()
+  local key = string.format("%s:%s/%s->%s", branch.author or "", branch.repo or "", branch.head, branch.base)
+  if pr_cache[key] then
+    return cb(pr_cache[key])
+  end
+  return M.list("pr", function(items)
+    pr_cache[key] = items and items[1] or nil
+    cb(pr_cache[key])
+  end, {
+    author = branch.author,
+    head = branch.head,
+    base = branch.base,
+    repo = branch.repo,
+    limit = 1,
   })
 end
 

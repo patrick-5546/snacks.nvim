@@ -175,3 +175,11 @@
 ---@field closed? number
 ---@field merged? number
 ---@field draft? boolean
+
+---@class snacks.gh.api.Branch
+---@field url string URL of the remote branch
+---@field author string owner of the remote branch
+---@field repo string owner/name format
+---@field branch string local branch name
+---@field base string branch we want to merge into
+---@field head string branch we want to merge from

@@ -237,7 +237,8 @@ M.actions.gh_yank = {
 }
 
 M.actions.gh_comment = {
-  desc = "Comment on {type} #{number}",
+  desc = "Add comment",
+  title = "Comment on {type} #{number}",
   icon = " ",
   action = function(item, ctx)
     local win = ctx.main or vim.api.nvim_get_current_win()

@@ -21,6 +21,7 @@
 ---@field args string[]
 ---@field repo? string
 ---@field input? string
+---@field notify? boolean
 ---@field on_error? fun(proc: snacks.spawn.Proc, err: string)
 
 ---@class snacks.gh.api.Api

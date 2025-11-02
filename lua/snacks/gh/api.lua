@@ -462,14 +462,8 @@ function M.get_branch()
   local branch = vim.fn.system({ "git", "branch", "--show-current" }):gsub("\n", "")
 
   -- Get all config in one call
-  local git_config = vim.fn
-    .system({
-      "git",
-      "config",
-      "--get-regexp",
-      ("^(branch\\.%s\\.|remote\\.)"):format(branch),
-    })
-    :gsub("\n$", "")
+  local git_config =
+    vim.fn.system({ "git", "config", "--get-regexp", ("^(branch\\.%s\\.|remote\\.)"):format(branch) }):gsub("\n$", "")
 
   local cfg = {} ---@type table<string, string>
   for _, line in ipairs(vim.split(git_config, "\n")) do
@@ -482,23 +476,23 @@ function M.get_branch()
   -- Extract values
   local remote = cfg[("branch.%s.remote"):format(branch)] or ""
   local merge = cfg[("branch.%s.merge"):format(branch)] or ""
-  local origin_url = cfg["remote.origin.url"] or ""
 
   -- Get fork URL (either named remote or direct URL)
   local url = (remote:match("^https://") or remote:match("^git@")) and remote
     or cfg[("remote.%s.url"):format(remote)]
     or remote
 
-  -- Parse author from fork URL
-  local author ---@type string?
-  if url ~= "" then
-    ---@type string?
-    local owner_repo = url:match("github%.com[:/](.+/.+)%.git") or url:match("github%.com[:/](.+/.+)$")
-    author = owner_repo and owner_repo:match("^([^/]+)/") or nil
+  ---@param u? string
+  ---@return string?
+  local function parse(u)
+    return u and (u:match("github%.com[:/](.+/.+)%.git") or u:match("github%.com[:/](.+/.+)$")) or nil
   end
 
-  -- Parse repo from origin
-  local repo = origin_url:match("github%.com[:/](.+/.+)%.git") or origin_url:match("github%.com[:/](.+/.+)$")
+  -- Parse author from fork URL
+  local author = (parse(url) or ""):match("^([^/]+)/")
+
+  -- Parse repo from upstream or origin
+  local repo = parse(cfg["remote.upstream.url"]) or parse(cfg["remote.origin.url"])
 
   -- Parse head from merge ref
   local head = merge:match("^refs/heads/(.+)$") or branch

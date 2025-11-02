@@ -22,6 +22,12 @@ local diff_types = {
   ["-"] = "SnacksGhDiffDelete",
 }
 
+---@param virt_text snacks.picker.Text[]
+---@return snacks.picker.Extmark
+local function vt(virt_text)
+  return { virt_text = virt_text, virt_text_pos = "overlay", col = 0, hl_mode = "replace", priority = 200 }
+end
+
 ---@param comment snacks.gh.Comment
 ---@param level number
 ---@param opts snacks.gh.Config
@@ -113,22 +119,29 @@ function M:format()
   local hl_header = "SnacksGhDiffHeader"
 
   ret[#ret + 1] = { indent_extmark }
-  ret[#ret + 1] = { indent_extmark, { a("", self.opts.diff.wrap + 3 + lino_width), hl_header } }
+  ret[#ret + 1] = {
+    vt(vim.list_extend(vim.deepcopy(indent), {
+      { a("", self.opts.diff.wrap + 3 + lino_width), hl_header },
+    })),
+  }
   local icon, icon_hl = Snacks.util.icon(self.path)
-  icon_hl = icon_hl or hl_header
 
   ret[#ret + 1] = {
-    indent_extmark,
-    { "  ", hl_header },
-    { icon, { hl_header, icon_hl } },
-    { "  ", hl_header },
-    {
-      self.path
-        .. a("", self.opts.diff.wrap + lino_width - vim.api.nvim_strwidth(self.path) + vim.api.nvim_strwidth(icon) - 3),
-      "SnacksGhDiffHeader",
-    },
+    vt(vim.list_extend(vim.deepcopy(indent), {
+      { "  ", hl_header },
+      { icon, icon_hl and { hl_header, icon_hl } or icon_hl },
+      { "  ", hl_header },
+      {
+        self.path .. a(
+          "",
+          self.opts.diff.wrap + lino_width - vim.api.nvim_strwidth(self.path) + vim.api.nvim_strwidth(icon) - 3
+        ),
+        "SnacksGhDiffHeader",
+      },
+    })),
+    { a("", vim.api.nvim_strwidth(icon) + indent_width) .. self.path },
   }
-  ret[#ret + 1] = { indent_extmark, { a("", self.opts.diff.wrap + 3 + lino_width), hl_header } }
+  ret[#ret + 1] = ret[#ret - 1] -- repeat border
   ret[#ret + 1] = { indent_extmark, { "```" } }
 
   for l = offset, #self.diff do
@@ -155,10 +168,7 @@ function M:format()
         table.insert(virt_text, chunk)
       end
       table.insert(virt_text, { string.rep(" ", self.opts.diff.wrap - vim.api.nvim_strwidth(str)), hl })
-      ret[#ret + 1] = {
-        { a("", indent_width + lino_width - 1) .. str },
-        { virt_text = virt_text, virt_text_pos = "overlay", col = 0, hl_mode = "replace", priority = 200 },
-      }
+      ret[#ret + 1] = { { a("", indent_width + lino_width - 1) .. str }, vt(virt_text) }
     end
   end
   ret[#ret + 1] = { indent_extmark, { "```" } }

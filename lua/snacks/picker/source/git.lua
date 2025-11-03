@@ -290,9 +290,6 @@ function M.diff(opts, ctx)
       finder(function(item)
         if not opts.base then
           item.staged = opts.staged or f == 2
-          local block = item.block ---@type snacks.picker.diff.Block
-          local status = ({ new = "A", delete = "D", rename = "R", copy = "C" })[block.type] or "M"
-          item.status = block.unmerged and (status .. status) or item.staged and (status .. " ") or (" " .. status)
         end
         items[#items + 1] = item
       end)

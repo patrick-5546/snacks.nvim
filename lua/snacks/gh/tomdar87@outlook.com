@@ -266,6 +266,32 @@ M.actions.gh_comment = {
   end,
 }
 
+M.actions.gh_update_branch = {
+  icon = "󰚰 ",
+  title = "Update branch of PR #{number}",
+  type = "pr",
+  enabled = function(item)
+    return item.state == "open"
+  end,
+  action = function(item, ctx)
+    Snacks.picker.select(
+      { "1. Yes using the rebase method", "2. Yes using the merge method", "3. Cancel" },
+      { title = "Are you sure you want to update the brnch of PR #" .. item.id .. "?" },
+      function(choice, idx)
+        if idx == 3 then
+          return
+        end
+
+        local action = vim.deepcopy(M.cli_actions.gh_update_branch)
+        if idx == 1 then
+          action.args = { "--rebase" }
+        end
+        M.run(item, action, ctx)
+      end
+    )
+  end,
+}
+
 ---@type table<string, snacks.gh.cli.Action>
 M.cli_actions = {
   gh_comment = {
@@ -274,6 +300,12 @@ M.cli_actions = {
     title = "Comment on {type} #{number}",
     success = "Commented on {type} #{number}",
     edit = "body-file",
+  },
+  gh_update_branch = {
+    cmd = "update-branch",
+    title = "Update branch of PR #{number}",
+    success = "Branch of PR #{number} updated",
+    type = "pr",
   },
   gh_checkout = {
     cmd = "checkout",
@@ -423,7 +455,7 @@ M.cli_actions = {
     enabled = function(item)
       return item.state == "open"
     end,
-  },
+  }
 }
 
 ---@param opts snacks.gh.cli.Action

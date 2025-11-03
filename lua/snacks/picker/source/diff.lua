@@ -11,6 +11,7 @@ local M = {}
 
 ---@class snacks.picker.diff.Block
 ---@field type? "new"|"delete"|"rename"|"copy"|"mode"
+---@field unmerged? boolean
 ---@field file string
 ---@field left? string
 ---@field right? string
@@ -54,13 +55,15 @@ function M.diff(opts, ctx)
     ---@param file string
     ---@param line? number
     ---@param diff string[]
-    local function add(file, line, diff)
+    ---@param block snacks.picker.diff.Block
+    local function add(file, line, diff, block)
       line = line or 1
       cb({
         text = file .. ":" .. line,
         diff = table.concat(diff, "\n"),
         file = file,
         cwd = cwd,
+        block = block,
         pos = { line, 0 },
       })
     end
@@ -72,12 +75,12 @@ function M.diff(opts, ctx)
         if opts.group then
           vim.list_extend(diff, h.diff)
         else
-          add(block.file, h.line, vim.list_extend(vim.deepcopy(block.header), h.diff))
+          add(block.file, h.line, vim.list_extend(vim.deepcopy(block.header), h.diff), block)
         end
       end
       if opts.group or #block.hunks == 0 then
         local line = block.hunks[1] and block.hunks[1].line or 1
-        add(block.file, line, vim.list_extend(vim.deepcopy(block.header), diff))
+        add(block.file, line, vim.list_extend(vim.deepcopy(block.header), diff), block)
       end
     end
   end
@@ -190,6 +193,7 @@ function M.parse(lines)
       local line = 1
       if text:find("@@@", 1, true) == 1 then
         line = tonumber(text:match("^@@@ %-%d+,?%d* %-%d+,?%d* %+(%d+),?%d* @@@")) or 1
+        block.unmerged = true
       else
         line = tonumber(text:match("^@@ %-%d+,?%d* %+(%d+),?%d* @@")) or 1
       end

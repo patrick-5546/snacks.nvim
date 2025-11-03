@@ -63,6 +63,7 @@ function M.diff(opts, ctx)
         diff = table.concat(diff, "\n"),
         file = file,
         cwd = cwd,
+        rename = block.type == "rename" and block.left or nil,
         block = block,
         pos = { line, 0 },
       })

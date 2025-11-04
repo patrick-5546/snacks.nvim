@@ -489,7 +489,11 @@ function M.undo(opts, ctx)
       end)
     end)
     for i = #items, 1, -1 do
-      cb(items[i])
+      local item = items[i]
+      cb(item)
+      if item.current then
+        ctx.picker.list:set_target(#items - i + 1)
+      end
     end
 
     while #items > 0 do

@@ -10,6 +10,7 @@ local function diff_linenr(...)
   local fg = Snacks.util.color(vim.list_extend({ ... }, { "NormalFloat", "Normal" }))
   local bg = Snacks.util.color(vim.list_extend({ ... }, { "NormalFloat", "Normal" }), "bg")
   bg = bg or vim.o.background == "dark" and "#1e1e1e" or "#f5f5f5"
+  fg = fg or vim.o.background == "dark" and "#f5f5f5" or "#1e1e1e"
   return {
     fg = fg,
     bg = Snacks.util.blend(fg, bg, 0.1),

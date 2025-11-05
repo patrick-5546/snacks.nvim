@@ -1994,6 +1994,13 @@ vim.tbl_extend("force", {}, M.lsp_symbols, {
   format = "file",
   global = true,
   ["local"] = true,
+  win = {
+    input = {
+      keys = {
+        ["<c-x>"] = { "mark_delete", mode = { "n", "i" } },
+      },
+    },
+  },
 }
 ```
 
@@ -2887,6 +2894,12 @@ Send selected or all items to the location list.
 
 ```lua
 Snacks.picker.actions.loclist(picker)
+```
+
+### `Snacks.picker.actions.mark_delete()`
+
+```lua
+Snacks.picker.actions.mark_delete(picker)
 ```
 
 ### `Snacks.picker.actions.paste()`

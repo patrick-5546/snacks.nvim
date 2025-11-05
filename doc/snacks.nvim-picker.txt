@@ -1769,6 +1769,7 @@ GREP_WORD                               *snacks.nvim-picker-sources-grep_word*
     {
       finder = "grep",
       regex = false,
+      args = { "--word-regexp" },
       format = "file",
       search = function(picker)
         return picker:word()

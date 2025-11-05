@@ -186,7 +186,7 @@ Snacks.picker.pick({source = "files", ...})
       ---@type vim.wo?|{} window options for the fancy diff preview window
       wo = {
         breakindent = true,
-        -- wrap = true, -- inherit from global settings
+        wrap = true,
         linebreak = true,
         showbreak = "",
       },

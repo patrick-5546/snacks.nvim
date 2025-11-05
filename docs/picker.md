@@ -1525,6 +1525,7 @@ Git log
 {
   finder = "grep",
   regex = false,
+  args = { "--word-regexp" },
   format = "file",
   search = function(picker)
     return picker:word()

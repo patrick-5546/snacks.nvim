@@ -100,6 +100,7 @@
 ---@field author snacks.gh.User
 ---@field authorAssociation string
 ---@field body string
+---@field createdAt string
 ---@field submittedAt string
 ---@field submitted number
 ---@field created number
@@ -108,7 +109,7 @@
 ---@field commit? {oid: string}
 ---@field comments? snacks.gh.Comment[]
 
----@alias snacks.gh.Thread snacks.gh.Comment|snacks.gh.Review|{created: number}
+---@alias snacks.gh.Thread snacks.gh.Comment|snacks.gh.Review
 
 ---@class snacks.gh.Item
 ---@field number number

@@ -126,7 +126,6 @@ function M:update(data, fields)
   vim.tbl_map(fix, item.comments or {})
   for _, review in ipairs(item.reviews or {}) do
     fix(review)
-    review.created = review.submitted
     vim.tbl_map(fix, review.comments or {})
   end
 

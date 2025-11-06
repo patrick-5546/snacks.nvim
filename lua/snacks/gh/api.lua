@@ -464,6 +464,7 @@ function M.comments(item, cb)
                 state
                 commit { oid }
                 submittedAt
+                createdAt
                 reactionGroups {
                   content
                   users { totalCount }

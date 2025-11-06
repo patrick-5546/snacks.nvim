@@ -302,13 +302,12 @@ function M.render(buf, item, opts)
     for _, thread in ipairs(threads) do
       local c = #lines
 
-      if thread.submitted then
+      ctx.is_review = thread.state ~= nil
+      if ctx.is_review then
         ---@cast thread snacks.gh.Review
-        ctx.is_review = true
         vim.list_extend(lines, M.review(thread, ctx))
       else
         ---@cast thread snacks.gh.Comment
-        ctx.is_review = false
         vim.list_extend(lines, M.comment(thread, ctx))
       end
 

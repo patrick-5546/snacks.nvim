@@ -320,7 +320,7 @@ function M.view(cb, item, opts)
     api_opts.fields = vim.list_extend(api_opts.fields, opts.fields)
   end
 
-  item = not Item.is(item) and cache_get(item) or item
+  item = M.get_cached(item)
   local todo = Item.is(item) and item:need(api_opts.fields) or api_opts.fields
   if opts.force or item.dirty then
     todo = api_opts.fields
@@ -335,13 +335,20 @@ function M.view(cb, item, opts)
   local args = { item.type, "view", tostring(item.number) }
   local need_reviews = item.type == "pr" and vim.tbl_contains(todo, "comments")
   local it ---@type snacks.gh.Item?
-  local pending = need_reviews and 2 or 1
+  local completed = 0
+  local fetch_comments = false
+  local procs = {} ---@type snacks.spawn.Proc[]
 
   ---@param data? snacks.gh.Item|{}
   local function handler(data)
     it = data and vim.tbl_extend("force", it or {}, data or {}) or it
-    pending = pending - 1
-    if pending > 0 then
+    if fetch_comments then
+      fetch_comments = false
+      item.repo = it and Item.get_repo(it.url) or nil
+      procs[#procs + 1] = M.comments(item, handler)
+    end
+    completed = completed + 1
+    if completed < #procs then
       return
     end
     if not it then
@@ -356,21 +363,52 @@ function M.view(cb, item, opts)
     todo = vim.tbl_filter(function(f)
       return f ~= "comments" and f ~= "reviews"
     end, todo)
-    M.comments(item, handler)
+    if item.repo then
+      procs[#procs + 1] = M.comments(item, handler)
+    else
+      -- fetch comments once we fetched the item
+      fetch_comments = true
+    end
   end
 
-  ---@param data? snacks.gh.Item
-  return M.fetch(function(_, data)
-    handler(data)
-  end, {
-    args = args,
-    fields = todo,
-    repo = item.repo or api_opts.repo,
-  })
+  if #todo > 0 then
+    ---@param data? snacks.gh.Item
+    procs[#procs + 1] = M.fetch(function(_, data)
+      handler(data)
+    end, {
+      args = args,
+      fields = todo,
+      repo = item.repo or api_opts.repo,
+    })
+  end
+
+  ---@type snacks.picker.Waitable
+  return {
+    ---@async
+    wait = function()
+      for _, proc in ipairs(procs) do
+        proc:wait()
+      end
+    end,
+  }
 end
 
 ---@param item snacks.gh.api.View
-function M.get(item)
+---@param opts? { fields?: string[], force?: boolean }
+---@async
+function M.get(item, opts)
+  local ret ---@type snacks.picker.gh.Item?
+  local procs = M.view(function(it)
+    ret = it
+  end, item, opts)
+  if procs then
+    procs:wait()
+  end
+  return ret
+end
+
+---@param item snacks.gh.api.View
+function M.get_cached(item)
   return not Item.is(item) and cache_get(item) or item
 end
 
@@ -406,6 +444,17 @@ function M.comments(item, cb)
       query($owner: String!, $name: String!, $number: Int!) {
         repository(owner: $owner, name: $name) {
           pullRequest(number: $number) {
+            reviewThreads(first: 100) {
+              nodes {
+                id
+                diffSide
+                comments(first: 50) {
+                  nodes {
+                    id
+                  }
+                }
+              }
+            }
             reviews(first: 100) {
               nodes {
                 id

@@ -378,12 +378,14 @@ end
 
 ---@param line snacks.picker.Highlight[]
 ---@param hl_group string
-function M.add_eol(line, hl_group)
+---@param offset? number
+function M.add_eol(line, hl_group, offset)
   line[#line + 1] = {
     col = M.offset(line),
     virt_text = { { string.rep(" ", 1000), hl_group } },
     virt_text_pos = "overlay",
     hl_mode = "replace",
+    virt_text_win_col = offset,
     virt_text_repeat_linebreak = true,
   }
   return line

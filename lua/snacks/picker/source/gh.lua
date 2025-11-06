@@ -92,13 +92,6 @@ function M.get_actions(opts, ctx)
         return
       end
       item = Api.get({ type = opts.type or "pr", repo = opts.repo, number = opts.number })
-      local proc = Api.view(function(it)
-        item = it
-      end, item)
-
-      if proc then
-        proc:wait()
-      end
       if not item then
         Snacks.notify.error("snacks.picker.gh.get_actions: Failed to get item")
         return
@@ -148,14 +141,28 @@ function M.diff(opts, ctx)
   if opts.repo then
     vim.list_extend(args, { "--repo", opts.repo })
   end
-  return require("snacks.picker.source.diff").diff(
-    ctx:opts({
-      cmd = "gh",
-      args = args,
-      cwd = cwd,
-    }),
-    ctx
-  )
+  local Render = require("snacks.gh.render")
+  local Diff = require("snacks.picker.source.diff")
+  ---@async
+  return function(cb)
+    local item = Api.get({ type = "pr", repo = opts.repo, number = opts.pr })
+    local annotations ---@type snacks.diff.Annotation[]
+    ctx.async:schedule(function()
+      annotations = Render.annotations(item)
+    end)
+
+    Diff.diff(
+      ctx:opts({
+        cmd = "gh",
+        args = args,
+        cwd = cwd,
+        annotations = annotations,
+      }),
+      ctx
+    )(function(it)
+      cb(it)
+    end)
+  end
 end
 
 ---@param opts snacks.picker.gh.reactions.Config
@@ -220,7 +227,7 @@ function M.labels(opts, ctx)
       fields = { "labels" },
       args = { "repo", "view", opts.repo },
     })
-    local item = Api.get(opts)
+    local item = Api.get_cached(opts)
     assert(item, "Failed to get item for labels")
     local added = {} ---@type table<string, boolean>
     for _, label in ipairs(item.labels or {}) do

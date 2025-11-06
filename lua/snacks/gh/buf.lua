@@ -92,7 +92,7 @@ function M:render(opts)
     return
   end
   opts = opts or {}
-  self.item = Api.get(self.item)
+  self.item = Api.get_cached(self.item)
 
   self:bo()
   self:wo()

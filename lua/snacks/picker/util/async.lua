@@ -20,6 +20,9 @@ end
 
 ---@alias snacks.picker.AsyncEvent "done" | "error" | "yield" | "ok" | "abort"
 
+---@class snacks.picker.Waitable
+---@field wait async fun()
+
 ---@class snacks.picker.Async
 ---@field _co? thread
 ---@field _fn fun()

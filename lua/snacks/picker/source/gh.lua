@@ -163,7 +163,10 @@ function M.diff(opts, ctx)
         annotations = annotations,
       }),
       ctx
-    )(cb)
+    )(function(it)
+      it.gh_item = item
+      cb(it)
+    end)
   end
 end
 

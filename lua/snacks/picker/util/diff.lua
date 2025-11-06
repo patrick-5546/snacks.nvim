@@ -399,6 +399,19 @@ function M.format_hunk(ctx)
       hl_mode = "replace",
     }
 
+    if have_left or have_right then
+      line[#line + 1] = {
+        "",
+        meta = {
+          diff = {
+            side = have_right and "right" or "left",
+            file = block.file,
+            line = have_right and index[l][#parse.versions] or index[l][1],
+          },
+        },
+      }
+    end
+
     ret[#ret + 1] = line
 
     local annot_left = "left:" .. (index[l][1] or "")

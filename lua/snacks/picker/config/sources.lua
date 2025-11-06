@@ -283,6 +283,13 @@ M.gh_diff = {
   finder = "gh_diff",
   format = "git_status",
   preview = "diff",
+  win = {
+    preview = {
+      keys = {
+        ["a"] = { "gh_comment", mode = { "n", "x" } },
+      },
+    },
+  },
 }
 
 ---@class snacks.picker.gh.reactions.Config: snacks.picker.Config

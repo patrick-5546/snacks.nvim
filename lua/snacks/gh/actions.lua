@@ -242,15 +242,17 @@ M.actions.gh_comment = {
   title = "Comment on {type} #{number}",
   icon = " ",
   action = function(item, ctx)
-    local win = ctx.main or vim.api.nvim_get_current_win()
+    item = item.gh_item or item -- unwrap from
+    local current_win = vim.api.nvim_get_current_win()
+    local win = vim.w[current_win].snacks_picker_preview and current_win or ctx.main or current_win
     local buf = vim.api.nvim_win_get_buf(win)
 
     local action = vim.deepcopy(M.cli_actions.gh_comment)
-    if item.uri == vim.api.nvim_buf_get_name(buf) then
+    if vim.b[buf].snacks_meta then
       local lino = vim.api.nvim_win_get_cursor(win)[1]
       local meta = vim.b[buf].snacks_meta or {}
       for _, c in ipairs(meta) do
-        if c.line == lino then
+        if c.line == lino and c.comment_id then
           action.title = "Reply to comment on {type} #{number}"
           action.api = {
             endpoint = "/repos/{repo}/pulls/{number}/comments",

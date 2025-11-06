@@ -185,7 +185,9 @@ end
 ---@param ft "diff"|"git"
 ---@param ctx snacks.picker.preview.ctx
 local function fancy_diff(diff, ft, ctx)
-  require("snacks.picker.util.diff").render(ctx.preview:scratch(), ns, diff, {
+  local buf = ctx.preview:scratch()
+  ctx.preview.win:map()
+  require("snacks.picker.util.diff").render(buf, ns, diff, {
     ft = ft,
     annotations = ctx.item.annotations or ctx.picker.opts.annotations,
   })

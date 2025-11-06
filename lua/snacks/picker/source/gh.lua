@@ -146,10 +146,7 @@ function M.diff(opts, ctx)
   ---@async
   return function(cb)
     local item = Api.get({ type = "pr", repo = opts.repo, number = opts.pr })
-    local annotations ---@type snacks.diff.Annotation[]
-    ctx.async:schedule(function()
-      annotations = Render.annotations(item)
-    end)
+    local annotations = Render.annotations(item)
 
     Diff.diff(
       ctx:opts({

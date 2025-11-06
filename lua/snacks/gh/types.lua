@@ -102,6 +102,7 @@
 ---@field body string
 ---@field submittedAt string
 ---@field submitted number
+---@field created number
 ---@field reactionGroups? snacks.gh.Reaction[]
 ---@field state "APPROVED" | "CHANGES_REQUESTED" | "COMMENTED" | "DISMISSED" | "PENDING"
 ---@field commit? {oid: string}

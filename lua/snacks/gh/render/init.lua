@@ -349,12 +349,7 @@ end
 function M.get_threads(item)
   local ret = {} ---@type snacks.gh.Thread[]
   vim.list_extend(ret, item.comments or {})
-  for _, review in ipairs(item.reviews or {}) do
-    local thread = setmetatable({
-      created = review.submitted,
-    }, { __index = review }) --[[@as snacks.gh.Thread]]
-    ret[#ret + 1] = thread
-  end
+  vim.list_extend(ret, item.reviews or {})
   table.sort(ret, function(a, b)
     return a.created < b.created
   end)
@@ -614,7 +609,6 @@ function M.annotations(pr)
     markdown = false,
   }
   for _, review in ipairs(pr.reviews or {}) do
-    review.created = review.submitted
     M.review(review, ctx)
   end
   return ctx.annotations

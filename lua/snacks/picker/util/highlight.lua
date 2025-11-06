@@ -2,7 +2,7 @@
 local M = {}
 
 ---@class (private) vim.var_accessor
----@field snacks_meta? snacks.picker.Meta[]
+---@field snacks_meta? table<number,snacks.picker.Meta>
 
 M.langs = {} ---@type table<string, boolean>
 M._scratch = {} ---@type table<string, number>
@@ -471,6 +471,19 @@ function M.fix_offset(hl, offset, start_idx)
   return hl
 end
 
+--- tables with number as keys are stored in vim.b as an array,
+--- so we need to filter out vim.NIL
+---@param buf number
+function M.meta(buf)
+  local ret = {} ---@type table<number, snacks.picker.Meta>
+  for k, v in pairs(vim.b[buf].snacks_meta or {}) do
+    if v ~= vim.NIL then
+      ret[k] = v
+    end
+  end
+  return not vim.tbl_isempty(ret) and ret or nil
+end
+
 ---@param dst snacks.picker.Highlight[]
 ---@param src snacks.picker.Highlight[]
 function M.extend(dst, src)
@@ -492,7 +505,7 @@ function M.render(buf, ns, lines, opts)
     vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
   end
 
-  local meta = {} ---@type snacks.picker.Meta[]
+  local meta = {} ---@type table<number, snacks.picker.Meta>
 
   local changed = #lines ~= #old_lines
   local offset = opts.append and vim.api.nvim_buf_line_count(buf) or 0
@@ -504,8 +517,7 @@ function M.render(buf, ns, lines, opts)
       changed = true
     end
     if line_meta then
-      line_meta.line = offset + l
-      meta[#meta + 1] = line_meta
+      meta[offset + l] = line_meta
     end
     for _, extmark in ipairs(extmarks) do
       local e = vim.deepcopy(extmark)

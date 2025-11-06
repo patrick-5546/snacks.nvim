@@ -282,11 +282,12 @@ M.gh_diff = {
   group = true,
   finder = "gh_diff",
   format = "git_status",
-  preview = "diff",
+  preview = "gh_preview_diff",
   win = {
     preview = {
       keys = {
         ["a"] = { "gh_comment", mode = { "n", "x" } },
+        ["<cr>"] = { "gh_actions", mode = { "n", "x" } },
       },
     },
   },

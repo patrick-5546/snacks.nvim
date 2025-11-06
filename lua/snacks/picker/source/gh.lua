@@ -15,10 +15,15 @@ M.actions = setmetatable({}, {
     local action = {
       desc = Actions.actions[k].desc,
       action = function(picker, item, action)
+        local items = picker:selected({ fallback = true })
+        if item.gh_item then
+          item = item.gh_item
+          items = { item }
+        end
         ---@diagnostic disable-next-line: param-type-mismatch
         return Actions.actions[k].action(item, {
           picker = picker,
-          items = picker:selected({ fallback = true }),
+          items = items,
           action = action,
         })
       end,
@@ -305,6 +310,19 @@ function M.format(item, picker)
   end
 
   return ret
+end
+
+---@param ctx snacks.picker.preview.ctx
+function M.preview_diff(ctx)
+  Snacks.picker.preview.diff(ctx)
+  local item = ctx.item.gh_item ---@type snacks.picker.gh.Item?
+  if item then
+    vim.b[ctx.buf].snacks_gh = {
+      repo = item.repo,
+      type = item.type,
+      number = item.number,
+    }
+  end
 end
 
 ---@param ctx snacks.picker.preview.ctx

@@ -56,6 +56,7 @@ local config = {
       "baseRefName",
       "deletions",
       "headRefName",
+      "headRefOid",
       "mergedAt",
       "statusCheckRollup",
       "reviews",

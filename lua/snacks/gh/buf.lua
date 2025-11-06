@@ -32,7 +32,7 @@ function M.new(buf, item)
   vim.b[buf].snacks_gh = {
     repo = item.repo,
     type = item.type,
-    number = item.number,
+    number = tonumber(item.number) or item.number,
   }
   self:bo()
   self:wo()

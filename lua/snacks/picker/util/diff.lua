@@ -3,7 +3,6 @@ local M = {}
 ---@class snacks.diff.Config
 ---@field max_hunk_lines? number only show last N lines of each hunk (used by GitHub PRs)
 ---@field hunk_header? boolean whether to show hunk header (default: true)
----@field ft? "diff" | "git"
 ---@field annotations? snacks.diff.Annotation[]
 
 ---@class snacks.diff.Annotation
@@ -13,6 +12,11 @@ local M = {}
 ---@field right? number
 ---@field line number
 ---@field text snacks.picker.Highlight[][]
+
+---@class snacks.diff.Meta
+---@field side "left" | "right"
+---@field file string
+---@field line number
 
 ---@class snacks.diff.ctx
 ---@field diff snacks.picker.Diff

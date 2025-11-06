@@ -196,6 +196,7 @@ function M.visual()
   local text = table.concat(lines, "\n")
   ---@class snacks.picker.Visual
   local ret = {
+    buf = vim.api.nvim_get_current_buf(),
     pos = pos,
     end_pos = end_pos,
     text = text,

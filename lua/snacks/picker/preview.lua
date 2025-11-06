@@ -188,7 +188,6 @@ local function fancy_diff(diff, ft, ctx)
   local buf = ctx.preview:scratch()
   ctx.preview.win:map()
   require("snacks.picker.util.diff").render(buf, ns, diff, {
-    ft = ft,
     annotations = ctx.item.annotations or ctx.picker.opts.annotations,
   })
   Snacks.util.wo(ctx.win, ctx.picker.opts.previewers.diff.wo or {})

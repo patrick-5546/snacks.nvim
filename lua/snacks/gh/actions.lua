@@ -28,6 +28,24 @@ local M = {}
 ---@field type? "pr" | "issue"
 ---@field enabled? fun(item: snacks.picker.gh.Item): boolean
 
+---@param item snacks.picker.gh.Item
+---@param ctx snacks.gh.action.ctx
+local function update_main(item, ctx)
+  local gh = { repo = item.repo, number = item.number, type = item.type }
+  if ctx.main and vim.api.nvim_win_is_valid(ctx.main) then
+    local buf = vim.api.nvim_win_get_buf(ctx.main)
+    if vim.deep_equal(vim.b[buf].snacks_gh or {}, gh) then
+      return ctx.main, buf
+    end
+  end
+  local win = vim.api.nvim_get_current_win()
+  local buf = vim.api.nvim_win_get_buf(win)
+  if vim.deep_equal(vim.b[buf].snacks_gh or {}, gh) then
+    ctx.main = win
+    return ctx.main, buf
+  end
+end
+
 ---@class snacks.gh.actions: {[string]:snacks.gh.Action}
 M.actions = setmetatable({}, {
   __index = function(_, key)
@@ -80,7 +98,7 @@ M.actions.gh_actions = {
     if ctx.action and ctx.action.cmd then
       return Snacks.picker.actions.jump(ctx.picker, item, ctx.action)
     end
-    ctx.main = ctx.main or ctx.picker and ctx.picker.main or nil
+    update_main(item, ctx)
     local actions = M.get_actions(item)
     actions.gh_actions = nil -- remove this action
     actions.gh_perform_action = nil -- remove this action
@@ -103,9 +121,10 @@ M.actions.gh_actions = {
         end
         ctx.action = action
         if ctx.picker then
+          ctx.picker.visual = ctx.picker.visual or picker.visual or nil
           ctx.picker:focus()
         end
-        ctx.main = ctx.main or picker and picker.main or nil
+        update_main(item, ctx)
         it.action.action(item, ctx)
         picker:close()
       end,
@@ -242,25 +261,55 @@ M.actions.gh_comment = {
   title = "Comment on {type} #{number}",
   icon = " ",
   action = function(item, ctx)
-    item = item.gh_item or item -- unwrap from
-    local current_win = vim.api.nvim_get_current_win()
-    local win = vim.w[current_win].snacks_picker_preview and current_win or ctx.main or current_win
-    local buf = vim.api.nvim_win_get_buf(win)
-
     local action = vim.deepcopy(M.cli_actions.gh_comment)
-    if vim.b[buf].snacks_meta then
-      local lino = vim.api.nvim_win_get_cursor(win)[1]
-      local meta = vim.b[buf].snacks_meta or {}
-      for _, c in ipairs(meta) do
-        if c.line == lino and c.comment_id then
+    local win, buf = update_main(item, ctx)
+    if win and buf then
+      local meta = Snacks.picker.highlight.meta(buf)
+      if meta then
+        ---@type {comment_id?: number, diff?: snacks.diff.Meta}?
+        local m = meta[vim.api.nvim_win_get_cursor(win)[1]]
+        if m and m.comment_id then
           action.title = "Reply to comment on {type} #{number}"
           action.api = {
             endpoint = "/repos/{repo}/pulls/{number}/comments",
+            input = { in_reply_to = m.comment_id },
+          }
+        elseif m and m.diff then
+          local visual = ctx.picker and ctx.picker.visual or Snacks.picker.util.visual()
+          visual = visual and visual.buf == buf and visual or nil
+          local line = m.diff.line ---@type number
+          local start_line ---@type number?
+          if visual then
+            local line_diff = vim.tbl_get(meta, visual.end_pos[1], "diff") or m.diff --[[@as {file: string, line: number, side: string}]]
+            local start_diff = vim.tbl_get(meta, visual.pos[1], "diff") or m.diff --[[@as {file: string, line: number, side: string}]]
+            if line_diff.file ~= start_diff.file then
+              Snacks.notify.error("Cannot add comment: visual selection spans multiple files")
+              return
+            end
+            line, start_line = line_diff.line, start_diff.line
+            start_line, line = math.min(start_line or line, line), math.max(start_line or line, line)
+          end
+          start_line = start_line ~= line and start_line or nil
+          if start_line then
+            action.title = ("Comment on lines %s%d to %s%d"):format(
+              m.diff.side:sub(1, 1):upper(),
+              start_line or line,
+              m.diff.side:sub(1, 1):upper(),
+              line
+            )
+          else
+            action.title = ("Comment on line %s%d"):format(m.diff.side:sub(1, 1):upper(), line)
+          end
+          action.api = {
+            endpoint = "/repos/{repo}/pulls/{number}/comments",
             input = {
-              in_reply_to = c.comment_id,
+              commit_id = item.headRefOid, -- or item.headCommit.oid depending on your data structure
+              path = m.diff.file,
+              side = m.diff.side:upper(), -- "RIGHT" or "LEFT" (uppercase)
+              line = line,
+              start_line = start_line,
             },
           }
-          break
         end
       end
     end

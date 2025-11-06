@@ -133,6 +133,7 @@
 ---@field statusCheckRollup? snacks.gh.Check[]
 ---@field baseRefName? string
 ---@field headRefName? string
+---@field headRefOid? string
 ---@field isDraft? boolean
 ---@field reviews? snacks.gh.Review[]
 ---@field reviewThreads? snacks.gh.review.Thread[]

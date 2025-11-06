@@ -141,12 +141,15 @@ function M.diff(opts, ctx)
   if opts.repo then
     vim.list_extend(args, { "--repo", opts.repo })
   end
+  opts.previewers.diff.style = "fancy"
   local Render = require("snacks.gh.render")
   local Diff = require("snacks.picker.source.diff")
   ---@async
   return function(cb)
     local item = Api.get({ type = "pr", repo = opts.repo, number = opts.pr })
-    local annotations = Render.annotations(item)
+    local annotations = ctx.async:schedule(function()
+      return Render.annotations(item)
+    end)
 
     Diff.diff(
       ctx:opts({

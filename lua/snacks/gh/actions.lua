@@ -248,15 +248,14 @@ M.actions.gh_comment = {
     local action = vim.deepcopy(M.cli_actions.gh_comment)
     if item.uri == vim.api.nvim_buf_get_name(buf) then
       local lino = vim.api.nvim_win_get_cursor(win)[1]
-      ---@type {line:number, id:number}[]
-      local comments = vim.b[buf].snacks_gh_comments or {}
-      for _, c in ipairs(comments) do
+      local meta = vim.b[buf].snacks_meta or {}
+      for _, c in ipairs(meta) do
         if c.line == lino then
           action.title = "Reply to comment on {type} #{number}"
           action.api = {
             endpoint = "/repos/{repo}/pulls/{number}/comments",
             input = {
-              in_reply_to = c.id,
+              in_reply_to = c.comment_id,
             },
           }
           break

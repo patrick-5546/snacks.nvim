@@ -317,16 +317,6 @@ function M.render(buf, item, opts)
     end
   end
 
-  local comments = {} ---@type {line:number, id:number}[]
-  for l, line in ipairs(lines) do
-    for _, segment in ipairs(line) do
-      if segment.meta and segment.meta.reply then
-        comments[#comments + 1] = { line = l, id = segment.meta.reply }
-      end
-    end
-  end
-
-  vim.b[buf].snacks_gh_comments = comments
   local changed = h.render(buf, ns, lines)
 
   if changed then
@@ -537,7 +527,7 @@ function M.comment(comment, ctx)
     for _, line in ipairs(ret) do
       local reply_id = comment.replyTo and comment.replyTo.databaseId or comment.databaseId
       if reply_id then
-        line[#line + 1] = { "", meta = { reply = reply_id } }
+        line[#line + 1] = { "", meta = { comment_id = reply_id } }
       end
     end
   end

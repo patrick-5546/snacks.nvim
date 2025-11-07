@@ -389,14 +389,20 @@ function M.comment_header(comment, opts, ctx)
   return ret
 end
 
----@param body string
+---@param item snacks.gh.Comment|snacks.gh.Review
 ---@param ctx snacks.gh.render.ctx
-function M.comment_body(body, ctx)
+function M.comment_body(item, ctx)
+  local body = item.body or ""
   if body:match("^%s*$") then
     return {}
   end
   local ret = {} ---@type snacks.picker.Highlight[][]
   for _, l in ipairs(vim.split(body, "\n", { plain = true })) do
+    if l:find("^```suggestion$") then
+      local ft = item.path and vim.filetype.match({ filename = item.path }) or ""
+      l = "```" .. ft
+      ret[#ret + 1] = h.badge("Suggested change", "SnacksGhSuggestionBadge")
+    end
     ret[#ret + 1] = { { l } }
   end
   return ret
@@ -516,7 +522,7 @@ function M.comment(comment, ctx)
     end
   end
 
-  vim.list_extend(ret, M.comment_body(comment.body or "", ctx))
+  vim.list_extend(ret, M.comment_body(comment, ctx))
   local replies = M.find_reply(comment.id, ctx)
   for _, reply in ipairs(replies) do
     ret[#ret + 1] = {} -- empty line between comment and reply
@@ -578,7 +584,7 @@ function M.review(review, ctx)
   local text = texts[review.state] or review.state:lower():gsub("_", " ")
   extend(header, M.comment_header(review, { text = text }, ctx))
   ret[#ret + 1] = header
-  vim.list_extend(ret, M.comment_body(review.body or "", ctx))
+  vim.list_extend(ret, M.comment_body(review, ctx))
   for _, comment in ipairs(comments) do
     ret[#ret + 1] = {} -- empty line between review and comments
     vim.list_extend(ret, M.comment(comment, ctx))

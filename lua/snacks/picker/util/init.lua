@@ -76,7 +76,16 @@ end
 ---@param prompt string
 ---@param fn fun()
 function M.confirm(prompt, fn)
-  Snacks.picker.select({ "No", "Yes" }, { prompt = prompt }, function(_, idx)
+  Snacks.picker.select({ "No", "Yes" }, {
+    prompt = prompt,
+    snacks = {
+      layout = {
+        layout = {
+          max_width = 60,
+        },
+      },
+    },
+  }, function(_, idx)
     if idx == 2 then
       fn()
     end

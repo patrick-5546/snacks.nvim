@@ -49,17 +49,7 @@ function M.new(opts)
   self.win_opts = {}
   self.wins = self.opts.wins or {}
   self.box_wins = {}
-
-  local zindex = self.opts.layout.zindex or 50
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if vim.w[win].snacks_win or vim.w[win].snacks_layout then
-      local other = vim.api.nvim_win_get_config(win).zindex or 0
-      if other < 100 then -- ignore very high zindex windows
-        zindex = math.max(zindex, other + 1)
-      end
-    end
-  end
-  self.opts.layout.zindex = zindex + 2
+  self.opts.layout.zindex = Snacks.win.zindex(self.opts.layout.zindex) + 2
 
   -- wrap the split layout in a vertical box
   -- this is needed since a simple split window can't have borders/titles

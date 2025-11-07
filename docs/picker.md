@@ -2576,7 +2576,7 @@ M.sidebar
     min_width = 80,
     max_width = 100,
     height = 0.4,
-    min_height = 3,
+    min_height = 2,
     box = "vertical",
     border = true,
     title = "{title}",

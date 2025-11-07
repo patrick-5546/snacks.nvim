@@ -56,7 +56,7 @@
 ---@field desc? string -- description to show in the scratch buffer
 ---@field icon? string -- icon to show in the scratch buffer
 ---@field type? "issue" | "pr" -- action for items of this type (nil means both)
----@field enabled? fun(item: snacks.picker.gh.Item): boolean -- whether the action is enabled for the item
+---@field enabled? fun(item: snacks.picker.gh.Item, ctx: snacks.gh.action.ctx): boolean -- whether the action is enabled for the item
 ---@field success? string -- success message to show after the action
 ---@field confirm? string -- confirmation message to show before performing the action
 ---@field refresh? boolean -- whether to refresh the item after performing the action (default: true)
@@ -98,6 +98,7 @@
 
 ---@class snacks.gh.Review
 ---@field id string
+---@field databaseId number
 ---@field author snacks.gh.User
 ---@field authorAssociation string
 ---@field body string
@@ -109,6 +110,7 @@
 ---@field state "APPROVED" | "CHANGES_REQUESTED" | "COMMENTED" | "DISMISSED" | "PENDING"
 ---@field commit? {oid: string}
 ---@field comments? snacks.gh.Comment[]
+---@field viewerDidAuthor? boolean -- whether the viewer authored the review
 
 ---@alias snacks.gh.Thread snacks.gh.Comment|snacks.gh.Review
 
@@ -138,6 +140,7 @@
 ---@field isDraft? boolean
 ---@field reviews? snacks.gh.Review[]
 ---@field reviewThreads? snacks.gh.review.Thread[]
+---@field pendingReview? snacks.gh.Review
 
 ---@class snacks.gh.Commit
 ---@field oid string

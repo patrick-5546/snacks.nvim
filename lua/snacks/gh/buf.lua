@@ -52,7 +52,7 @@ function M:update()
 end
 
 function M:keys()
-  local actions = Actions.get_actions(self.item)
+  local actions = Actions.get_actions(self.item, { items = { self.item } })
 
   ---@param name string
   local function wrap(name)

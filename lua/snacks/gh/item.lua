@@ -130,8 +130,12 @@ function M:update(data, fields)
     or nil
   self.body = item.body and item.body:gsub("\r\n", "\n") or nil
   vim.tbl_map(fix, item.comments or {})
+  self.pendingReview = nil
   for _, review in ipairs(item.reviews or {}) do
     fix(review)
+    if review.state == "PENDING" and review.viewerDidAuthor then
+      self.pendingReview = review
+    end
     vim.tbl_map(fix, review.comments or {})
   end
 

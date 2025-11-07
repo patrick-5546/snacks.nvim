@@ -182,6 +182,7 @@ function M.cmd(cb, opts)
                 cmd = { "gh", unpack(args) },
                 footer = proc:err(),
                 level = vim.log.levels.ERROR,
+                props = { input = opts.input },
               })
             end
             if opts.on_error then
@@ -325,7 +326,6 @@ function M.view(cb, item, opts)
   local todo = Item.is(item) and item:need(api_opts.fields) or api_opts.fields
   if opts.force or item.dirty then
     todo = api_opts.fields
-    item.dirty = false
   end
 
   if #todo == 0 then
@@ -357,6 +357,7 @@ function M.view(cb, item, opts)
     end
     item = Item.new(item, api_opts)
     item:update(it, todo)
+    item.dirty = false
     cb(cache_set(item), true)
   end
 
@@ -436,11 +437,14 @@ function M.comments(item, cb)
     end
     cb(data.repository.pullRequest)
   end, {
+    -- comment
     params = {
       owner = owner,
       name = name,
       number = item.number,
     },
+
+    -- inject: graphql
     query = [[
       query($owner: String!, $name: String!, $number: Int!) {
         repository(owner: $owner, name: $name) {
@@ -459,6 +463,7 @@ function M.comments(item, cb)
             reviews(first: 100) {
               nodes {
                 id
+                databaseId
                 author { login }
                 authorAssociation
                 body
@@ -466,6 +471,7 @@ function M.comments(item, cb)
                 commit { oid }
                 submittedAt
                 createdAt
+                viewerDidAuthor
                 reactionGroups {
                   content
                   users { totalCount }

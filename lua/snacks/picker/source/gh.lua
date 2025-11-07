@@ -103,7 +103,12 @@ function M.get_actions(opts, ctx)
       end
     end
 
-    local actions = Actions.get_actions(item)
+    local actions = ctx.async:schedule(function()
+      return Actions.get_actions(item, {
+        picker = ctx.picker,
+        items = { item },
+      })
+    end)
     actions.gh_actions = nil -- remove this action
     actions.gh_perform_action = nil -- remove this action
     local items = {} ---@type snacks.picker.finder.Item[]

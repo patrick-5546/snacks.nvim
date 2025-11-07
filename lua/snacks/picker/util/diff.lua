@@ -17,6 +17,7 @@ local M = {}
 ---@field side "left" | "right"
 ---@field file string
 ---@field line number
+---@field code string
 
 ---@class snacks.diff.ctx
 ---@field diff snacks.picker.Diff
@@ -407,10 +408,12 @@ function M.format_hunk(ctx)
       line[#line + 1] = {
         "",
         meta = {
+          ---@type snacks.diff.Meta
           diff = {
             side = have_right and "right" or "left",
             file = block.file,
             line = have_right and index[l][#parse.versions] or index[l][1],
+            code = parse.lines[l],
           },
         },
       }

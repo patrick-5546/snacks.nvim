@@ -60,6 +60,7 @@
 ---@field success? string -- success message to show after the action
 ---@field confirm? string -- confirmation message to show before performing the action
 ---@field refresh? boolean -- whether to refresh the item after performing the action (default: true)
+---@field on_submit? fun(body: string, ctx: snacks.gh.cli.Action.ctx): string?
 
 ---@class snacks.gh.api.Fetch: snacks.gh.api.Cmd
 ---@field fields string[]

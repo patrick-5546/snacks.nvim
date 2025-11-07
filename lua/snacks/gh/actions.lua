@@ -280,14 +280,29 @@ M.actions.gh_comment = {
           local line = m.diff.line ---@type number
           local start_line ---@type number?
           if visual then
-            local line_diff = vim.tbl_get(meta, visual.end_pos[1], "diff") or m.diff --[[@as {file: string, line: number, side: string}]]
-            local start_diff = vim.tbl_get(meta, visual.pos[1], "diff") or m.diff --[[@as {file: string, line: number, side: string}]]
+            local from, to = math.min(visual.pos[1], visual.end_pos[1]), math.max(visual.pos[1], visual.end_pos[1])
+            local line_diff = vim.tbl_get(meta, to, "diff") or m.diff --[[@as snacks.diff.Meta]]
+            local start_diff = vim.tbl_get(meta, from, "diff") or m.diff --[[@as snacks.diff.Meta]]
             if line_diff.file ~= start_diff.file then
               Snacks.notify.error("Cannot add comment: visual selection spans multiple files")
               return
             end
+            local code = {} ---@type string[]
+            for i = from, to do
+              code[#code + 1] = vim.tbl_get(meta, i, "diff", "code") or ""
+            end
             line, start_line = line_diff.line, start_diff.line
-            start_line, line = math.min(start_line or line, line), math.max(start_line or line, line)
+            local ft = vim.filetype.match({ filename = m.diff.file }) or ""
+            local code_header = "```" .. (ft == "" and "" or (ft .. " ")) .. "suggestion\n"
+            action.template = ("\n%s%s\n```\n"):format(code_header, table.concat(code, "\n"))
+            action.on_submit = function(body)
+              local s, e = body:find(action.template, 1, true)
+              if s and e then -- suggestion not edited, so remove it
+                body = body:sub(1, s - 1) .. body:sub(e + 1)
+              end
+              body = body:gsub(code_header, "```suggestion\n") -- remove ft from suggestion
+              return body
+            end
           end
           start_line = start_line ~= line and start_line or nil
           if start_line then
@@ -766,6 +781,10 @@ function M.submit(ctx)
 
   if not body then
     return -- error already shown in M.parse
+  end
+
+  if ctx.opts.on_submit then
+    body = ctx.opts.on_submit(body, ctx) or body
   end
 
   if body:find("%S") then

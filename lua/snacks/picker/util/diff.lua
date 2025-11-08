@@ -63,6 +63,7 @@ Snacks.util.set_hl({
 }, { default = true, prefix = "Snacks" })
 
 local H = Snacks.picker.highlight
+local U = Snacks.picker.util
 
 ---@param diff string|string[]|snacks.picker.Diff
 function M.get_diff(diff)
@@ -317,7 +318,6 @@ end
 ---@param ctx snacks.diff.ctx
 function M.format_hunk(ctx)
   local block = assert(ctx.block)
-  local align = Snacks.picker.util.align
   local ret = {} ---@type snacks.picker.Highlight[][]
 
   local parse = M.parse_hunk(ctx)
@@ -359,14 +359,15 @@ function M.format_hunk(ctx)
       elseif in_conflict then
         p = "│ "
       end
-      prefix = align(p, 2) .. prefix
+      prefix = U.align(p, 2) .. prefix
     end
 
     local line = {} ---@type snacks.picker.Highlight[]
 
     local line_nr = {} ---@type string[]
     for i = 1, #parse.versions do
-      line_nr[i] = align(tostring(index[l][i] or ""), index.max, { align = i == #parse.versions and "right" or "left" })
+      line_nr[i] =
+        U.align(tostring(index[l][i] or ""), index.max, { align = i == #parse.versions and "right" or "left" })
     end
     local line_col = " " .. table.concat(line_nr, "  ") .. " "
     local prefix_col = " " .. prefix .. " "
@@ -392,7 +393,7 @@ function M.format_hunk(ctx)
     local ws = (parse.conflict_markers[l] or parse.lines[l]):match("^(%s*)") -- add ws for breakindent
     line[#line + 1] = {
       col = #line_col,
-      virt_text = { { align(prefix_col:gsub("[%-%+]", " "), #ws + #prefix_col), hl } },
+      virt_text = { { U.align(prefix_col:gsub("[%-%+]", " "), #ws + #prefix_col), hl } },
       virt_text_pos = "overlay",
       hl_mode = "replace",
       virt_text_repeat_linebreak = true,

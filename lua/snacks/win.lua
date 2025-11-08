@@ -311,6 +311,12 @@ function M.new(opts)
   end)
 
   self:on("WinClosed", self.on_close, { win = true })
+  self:on("WinResized", function()
+    if self.backdrop and not self:is_floating() then
+      self.backdrop:close()
+      self.backdrop = nil
+    end
+  end)
 
   -- update window size when resizing
   self:on("VimResized", self.on_resize)

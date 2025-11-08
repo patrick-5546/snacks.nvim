@@ -319,7 +319,7 @@ function M.render(buf, item, opts)
   local changed = H.render(buf, ns, lines)
 
   if changed then
-    Markdown.render(buf)
+    Markdown.render(buf, { bullets = false })
   end
 
   vim.schedule(function()

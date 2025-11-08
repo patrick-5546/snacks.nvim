@@ -62,7 +62,7 @@ local defaults = {
     wrap = 80, -- wrap diff lines at this length
   },
   scratch = {
-    height = 20, -- height of scratch window
+    height = 15, -- height of scratch window
   },
   -- stylua: ignore
   icons = {

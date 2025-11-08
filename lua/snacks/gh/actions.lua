@@ -873,6 +873,7 @@ function M.edit(ctx)
     template = table.concat(fm, "\n") .. template
   end
 
+  local height = config.scratch.height or 20
   Snacks.scratch({
     ft = "markdown",
     icon = config.icons.logo,
@@ -888,13 +889,13 @@ function M.edit(ctx)
       relative = "win",
       width = 0,
       backdrop = false,
-      height = config.scratch.height or 20,
+      height = height,
       win = ctx.main or vim.api.nvim_get_current_win(),
       wo = { winhighlight = "NormalFloat:Normal,FloatTitle:SnacksGhScratchTitle,FloatBorder:SnacksGhScratchBorder" },
       border = "top",
       row = function(win)
         local border = win:border_size()
-        return win:parent_size().height - 20 - border.top - border.bottom
+        return win:parent_size().height - height - border.top - border.bottom
       end,
       on_win = function()
         vim.schedule(function()

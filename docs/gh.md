@@ -197,7 +197,7 @@ See the [config section](#%EF%B8%8F-config) to customize these keymaps.
     wrap = 80, -- wrap diff lines at this length
   },
   scratch = {
-    height = 20, -- height of scratch window
+    height = 15, -- height of scratch window
   },
   icons = {
     logo = " ",

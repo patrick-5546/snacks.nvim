@@ -351,7 +351,7 @@ end
 function M.comment_header(comment, opts, ctx)
   opts = opts or {}
   local ret = {} ---@type snacks.picker.Highlight[]
-  local is_bot = comment.author.login == "github-actions"
+  local is_bot = comment.author.login == "github-actions" or comment.author.login:find("copilot")
   extend(
     ret,
     h.badge(

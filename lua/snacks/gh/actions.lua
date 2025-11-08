@@ -299,6 +299,10 @@ M.actions.gh_diff_comment = {
   title = "Comment on diff in {type} #{number}",
   priority = 150,
   icon = " ",
+  enabled = function(item, ctx)
+    local m = get_meta(item, ctx)
+    return m and m.diff ~= nil or false
+  end,
   action = function(item, ctx)
     local m, meta, buf = get_meta(item, ctx)
     if not (meta and buf and m and m.diff) then

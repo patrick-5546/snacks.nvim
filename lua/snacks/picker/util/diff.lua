@@ -174,6 +174,8 @@ function M.format_block_header(ctx)
   local icon, icon_hl = Snacks.util.icon(block.file)
   local file = {} ---@type snacks.picker.Highlight[]
   file[#file + 1] = { "  " }
+  -- needed to play nice with markview / markdown-renderer
+  file[#file + 1] = { col = 0, virt_text = { { "  ", "SnacksDiffHeader" } }, virt_text_pos = "overlay" }
   file[#file + 1] = { icon, icon_hl, inline = true }
   file[#file + 1] = { "  " }
 

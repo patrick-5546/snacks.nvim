@@ -51,11 +51,21 @@ function M.render(buf, opts)
       },
     })
   elseif package.loaded["markview"] then
-    local strict = require("markview").strict_render
-    if strict then
-      strict:clear(buf)
-      strict:render(buf)
-    end
+    local actions = require("markview.actions")
+    actions.clear(buf)
+    local wins = vim.fn.win_findbuf(buf)
+    actions.autocmd("on_disable", buf, wins)
+    actions.autocmd("on_detach", buf, wins)
+    actions.autocmd("on_attach", buf, wins)
+    actions.autocmd("on_enable", buf, wins)
+    actions.clear(buf)
+    actions.render(buf, { enable = true, hybrid_mode = false }, {
+      markdown = {
+        list_items = {
+          enable = opts.bullets ~= false,
+        },
+      },
+    })
   else
     M.render_fallback(buf)
   end

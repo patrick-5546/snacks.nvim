@@ -846,10 +846,10 @@ function M:show()
       return a[1] < b[1]
     end)
     for _, key in ipairs(self.keys) do
-      local keymap = vim.fn.keytrans(Snacks.util.keycode(key[1]))
       table.insert(self.opts.footer, { " ", "SnacksFooter" })
       table.insert(self.opts.footer, { " " .. keymap .. " ", "SnacksFooterKey" })
       table.insert(self.opts.footer, { " " .. (key.desc or keymap) .. " ", "SnacksFooterDesc" })
+      local keymap = Snacks.util.normkey(key[1])
     end
     table.insert(self.opts.footer, { " ", "SnacksFooter" })
   end

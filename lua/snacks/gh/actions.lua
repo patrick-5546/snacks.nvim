@@ -876,7 +876,7 @@ function M.edit(ctx)
   local preview = ctx.picker and ctx.picker.preview and ctx.picker.preview.win:valid() and ctx.picker.preview.win or nil
   local actions = preview and preview.opts.actions or {}
 
-  local height = config.scratch.height or 20
+  local height = config.scratch.height or 15
   local opts = Snacks.win.resolve({
     relative = "win",
     width = 0,

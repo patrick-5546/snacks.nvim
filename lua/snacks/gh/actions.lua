@@ -875,6 +875,7 @@ function M.edit(ctx)
 
   local preview = ctx.picker and ctx.picker.preview and ctx.picker.preview.win:valid() and ctx.picker.preview.win or nil
   local actions = preview and preview.opts.actions or {}
+  local parent = ctx.main or preview and preview.win or vim.api.nvim_get_current_win()
 
   local height = config.scratch.height or 15
   local opts = Snacks.win.resolve({
@@ -887,7 +888,7 @@ function M.edit(ctx)
       preview_scroll_up = actions.preview_scroll_up,
       preview_scroll_down = actions.preview_scroll_down,
     },
-    win = ctx.main or preview and preview.win or vim.api.nvim_get_current_win(),
+    win = parent,
     wo = { winhighlight = "NormalFloat:Normal,FloatTitle:SnacksGhScratchTitle,FloatBorder:SnacksGhScratchBorder" },
     border = "top_bottom",
     row = function(win)
@@ -895,6 +896,16 @@ function M.edit(ctx)
       return win:parent_size().height - height - border.top - border.bottom
     end,
     on_win = function(win)
+      if vim.api.nvim_win_is_valid(parent) then
+        local parent_row = vim.api.nvim_win_call(parent, vim.fn.winline) ---@type number
+        parent_row = parent_row + vim.wo[parent].scrolloff -- adjust for scrolloff
+        local row = vim.api.nvim_win_get_height(parent) - win:size().height
+        if parent_row > row then
+          vim.api.nvim_win_call(parent, function()
+            vim.cmd(("normal! %d%s"):format(parent_row - row, Snacks.util.keycode("<C-e>")))
+          end)
+        end
+      end
       vim.g.snacks_picker_cycle_win = win.win
       vim.schedule(function()
         vim.cmd.startinsert()

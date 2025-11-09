@@ -54,7 +54,7 @@ M.meta = {
 ---@class snacks.win.Config: vim.api.keyset.win_config
 ---@field style? string merges with config from `Snacks.config.styles[style]`
 ---@field show? boolean Show the window immediately (default: true)
----@field footer_keys? boolean Show keys footer (default: false)
+---@field footer_keys? boolean|string[] Show keys footer. When string[], only show those keys with lhs (default: false)
 ---@field height? number|fun(self:snacks.win):number Height of the window. Use <1 for relative height. 0 means full height. (default: 0.9)
 ---@field width? number|fun(self:snacks.win):number Width of the window. Use <1 for relative width. 0 means full width. (default: 0.9)
 ---@field min_height? number Minimum height of the window
@@ -845,11 +845,16 @@ function M:show()
     table.sort(self.keys, function(a, b)
       return a[1] < b[1]
     end)
+    local want = type(self.opts.footer_keys) == "table" and self.opts.footer_keys or nil
+    ---@cast want string[]|nil
+    want = want and vim.tbl_map(Snacks.util.normkey, want) or nil --[[@as string[]?]]
     for _, key in ipairs(self.keys) do
-      table.insert(self.opts.footer, { " ", "SnacksFooter" })
-      table.insert(self.opts.footer, { " " .. keymap .. " ", "SnacksFooterKey" })
-      table.insert(self.opts.footer, { " " .. (key.desc or keymap) .. " ", "SnacksFooterDesc" })
       local keymap = Snacks.util.normkey(key[1])
+      if want == nil or vim.tbl_contains(want, keymap) then
+        table.insert(self.opts.footer, { " ", "SnacksFooter" })
+        table.insert(self.opts.footer, { " " .. keymap .. " ", "SnacksFooterKey" })
+        table.insert(self.opts.footer, { " " .. (key.desc or keymap) .. " ", "SnacksFooterDesc" })
+      end
     end
     table.insert(self.opts.footer, { " ", "SnacksFooter" })
   end
